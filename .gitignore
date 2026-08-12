@@ -1,0 +1,14 @@
+# Dependencies and generated Wasp output
+node_modules/
+app/.wasp/
+app/node_modules/
+
+# Env files — never commit secrets. Examples are kept.
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# OS / editor
+.DS_Store
+*~

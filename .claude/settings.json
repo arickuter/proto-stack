@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(wasp compile)",
+      "Bash(wasp build:*)",
+      "Bash(wasp install)",
+      "Bash(wasp start db)",
+      "Bash(wasp db migrate-dev:*)",
+      "Bash(wasp db studio:*)",
+      "Bash(wasp version)",
+      "Bash(npm install:*)",
+      "Bash(npm run brand-lint)",
+      "Bash(npm run security-lint)",
+      "Bash(npm run contrast)",
+      "Bash(npm run brand:mirror)",
+      "Bash(npm run check)",
+      "Bash(npm run test:*)",
+      "Bash(npm audit:*)",
+      "Bash(node scripts/brand-tools.mjs:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx vite build)",
+      "Bash(ls:*)",
+      "WebSearch",
+      "WebFetch(domain:wasp.sh)"
+    ],
+    "ask": [
+      "Bash(wasp deploy:*)",
+      "Bash(wasp db reset:*)",
+      "Bash(wasp clean)"
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "flat": true,
+  "gradients": false,
+  "shadows": false,
+  "fonts": {
+    "sans": "Space Grotesk",
+    "mono": "IBM Plex Mono"
+  },
+  "hexAllowlist": ["src/brand/palette.ts"],
+  "typography": {
+    "allowUppercase": [],
+    "allowMono": ["src/dashboard/DashboardPage.tsx"]
+  }
+}

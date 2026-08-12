@@ -1,0 +1,11 @@
+{
+  "name": "ProtoStack",
+  "short_name": "ProtoStack",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7fafc",
+  "theme_color": "#f7fafc",
+  "icons": [
+    { "src": "/favicon.svg", "type": "image/svg+xml", "sizes": "any" }
+  ]
+}

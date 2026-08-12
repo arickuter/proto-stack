@@ -1,0 +1,26 @@
+datasource db {
+  provider = "postgresql"
+  // Wasp requires that the url is set to the DATABASE_URL environment variable.
+  // Locally, `wasp start db` provisions Postgres in Docker and sets this for you.
+  url      = env("DATABASE_URL")
+}
+
+// Wasp requires the `prisma-client-js` generator to be present.
+generator client {
+  provider = "prisma-client-js"
+}
+
+// The single application user. Wasp auto-generates the Auth / AuthIdentity /
+// Session tables that back sign-in; they are NOT declared here.
+//
+// `isAdmin` is set at signup by matching the email against the ADMIN_EMAILS
+// env var (see src/auth/userSignupFields.ts). There is no roles table — a
+// prototype does not need one.
+model User {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  email       String?  @unique
+  username    String?  @unique
+  displayName String?
+  isAdmin     Boolean  @default(false)
+}
