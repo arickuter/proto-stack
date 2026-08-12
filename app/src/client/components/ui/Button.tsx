@@ -43,31 +43,36 @@ type ButtonElementRest = ButtonPendingProps & ButtonHTMLAttributes<HTMLButtonEle
 export type ButtonProps = ButtonAsButtonProps | ButtonAsLinkProps;
 
 const base =
-  "relative inline-flex items-center justify-center gap-2 font-medium transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-50 disabled:pointer-events-none";
+  "relative inline-flex items-center justify-center gap-2 rounded-control font-medium transition-colors duration-(--motion-base) disabled:opacity-50 disabled:pointer-events-none";
 
 /*
  * Buttons are near-black, not green. `--primary` is the green accent used for
  * links and icons; a solid green button would fight the accent for attention
  * on every page. Filled buttons therefore read `--foreground` / `--background`.
+ *
+ * Hover/active use the state tokens (a step toward ink), never an alpha fade
+ * toward the page.
  */
 const variantClass: Record<ButtonVariant, string> = {
-  primary: "bg-foreground text-background hover:bg-foreground/90 rounded-[2px]",
+  primary: "bg-foreground text-background hover:bg-foreground-hover active:bg-foreground-active",
   secondary:
-    "bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-[2px]",
-  ghost: "border border-border text-foreground hover:border-foreground/40 rounded-[2px]",
+    "bg-secondary text-secondary-foreground hover:bg-secondary-hover active:bg-secondary-active",
+  ghost: "border border-border text-foreground hover:border-border-hover",
   "ghost-secondary":
-    "border border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground rounded-[2px]",
-  cta: "bg-foreground text-background hover:bg-foreground/90 font-semibold rounded-[2px]",
+    "border border-border text-muted-foreground hover:border-border-hover hover:text-foreground",
+  cta: "bg-foreground text-background hover:bg-foreground-hover active:bg-foreground-active font-semibold",
   // Filled button for the dark inverted band: reads the inverted tokens so it
   // stays a light chip on dark ground in both colour schemes.
   inverted:
-    "bg-surface-inverted-foreground text-surface-inverted hover:bg-surface-inverted-foreground/90 font-semibold rounded-[2px]",
+    "bg-surface-inverted-foreground text-surface-inverted hover:bg-surface-inverted-foreground-hover font-semibold",
 };
 
+// Every size clears a 40px minimum height (44px from md up) so touch targets
+// stay comfortable; padding sets the horizontal rhythm.
 const sizeClass: Record<ButtonSize, string> = {
-  sm: "px-3 py-1.5 text-sm",
-  md: "px-5 py-2.5 text-base",
-  lg: "px-6 py-3 sm:px-7 sm:py-3.5 text-base sm:text-lg",
+  sm: "min-h-10 px-3 text-sm",
+  md: "min-h-11 px-5 text-base",
+  lg: "min-h-12 px-6 sm:px-7 text-base sm:text-lg",
 };
 
 function classes(

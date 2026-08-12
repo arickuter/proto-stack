@@ -20,7 +20,10 @@ export default function NavBar() {
     <header className="border-b border-border">
       <Container>
         <div className="flex h-16 items-center justify-between gap-4">
-          <Link to="/" className="text-lg font-bold tracking-tight text-foreground">
+          <Link
+            to="/"
+            className="inline-flex min-h-11 items-center font-display text-lg font-bold tracking-tight text-foreground"
+          >
             {APP_NAME}
           </Link>
 

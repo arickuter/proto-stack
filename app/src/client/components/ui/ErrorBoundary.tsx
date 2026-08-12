@@ -1,5 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
 import Button from "./Button";
+import Heading from "./Heading";
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -41,12 +42,9 @@ export default class ErrorBoundary extends Component<
         className="min-h-[60vh] flex items-center justify-center px-6 py-20"
       >
         <div className="max-w-md w-full text-center space-y-6">
-          <p className="text-sm font-medium text-muted-foreground">
-            Something went wrong
-          </p>
-          <h1 className="text-3xl font-bold text-foreground">
+          <Heading as="h1" size="h2" align="center">
             This page hit an error
-          </h1>
+          </Heading>
           <p className="text-muted-foreground">
             The rest of the app is fine. Reload to try again.
           </p>

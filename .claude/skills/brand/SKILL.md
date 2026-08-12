@@ -28,14 +28,19 @@ A brief: app name, audience, 2–3 vibe adjectives, and a colour direction (or
 
 2. **Rewrite the tokens** in `Main.css` — the `:root` (light) block AND the
    `prefers-color-scheme: dark` block. Values in **oklch**; names untouched.
-   Set radius/typography tokens to match the personality. Follow the principles:
-   one accent hue, 60/30/10, `--primary` is not the button colour (unless the
-   brief explicitly wants an accent-filled button).
+   Set the `--radius-control` and `--text-*` tokens to match the personality
+   (one radius, not two). Keep state tokens (`*-hover`, `*-active`) a step
+   toward ink, and status tints as real `--*-surface` / `--*-on-surface` pairs —
+   never alpha composites. Follow the principles: one accent hue, 60/30/10,
+   `--primary` is not the button colour (unless the brief wants an accent fill).
 
 3. **Fonts** (if changing): pick from [Fontsource](https://fontsource.org),
-   `npm install @fontsource/<name>`, update the weight imports in `App.tsx` and
-   the `--font-sans` / `--font-mono` values in `Main.css`, and `fonts` in
-   `brand.config.json`.
+   `npm install @fontsource/<name>`. Update, in `Main.css`, the `--font-display`
+   (headings/wordmark), `--font-sans` (body/UI), and `--font-mono` values; the
+   weight imports in `App.tsx` (load only the weights used — a missing weight
+   gets synthesised and looks muddy); and `fonts` in `brand.config.json`. The
+   `body` rule reads `var(--font-sans)`, so don't hardcode a family anywhere —
+   brand-lint fails a `font-family` literal.
 
 4. **Shadows/gradients** (only if the brief truly wants elevation/gradients):
    flip the flag in `brand.config.json` AND remove the `--shadow-*: initial`
@@ -44,16 +49,17 @@ A brief: app name, audience, 2–3 vibe adjectives, and a colour direction (or
 5. **Regenerate the palette mirror:** `npm run brand:mirror`. Never hand-derive
    hex.
 
-6. **Check contrast:** `npm run contrast`. Iterate token lightness until every
-   pair passes AA. This is the gate — do not eyeball it.
+6. **Run the gate:** `npm run check` (brand-lint + security-lint + contrast +
+   mirror sync). Iterate token lightness until every contrast pair passes AA and
+   brand-lint is clean — including `token-orphan` (a new token you added but
+   didn't wire up fails; use it, drop it, or add it to `reservedTokens`). Do not
+   eyeball contrast.
 
-7. **Run `npm run brand-lint`** and fix anything.
-
-8. **Favicon & manifest:** update `app/public/favicon.svg` (a simple letterform
+7. **Favicon & manifest:** update `app/public/favicon.svg` (a simple letterform
    on the new palette) and `site.webmanifest` theme colours from the new
    `palette.ts` values.
 
-9. **Summarize** old→new (accent, fonts, radius) and suggest a visual pass with
+8. **Summarize** old→new (accent, fonts, radius) and suggest a visual pass with
    `wasp start`.
 
 ## Guardrails
@@ -65,4 +71,7 @@ A brief: app name, audience, 2–3 vibe adjectives, and a colour direction (or
   invert (lift the accent's lightness so links hold AA).
 - **No hex outside `palette.ts`.** One accent hue. Sentence case, no mono-caps
   labels — the anti-tell rules stay on regardless of brand.
+- **One radius, real tints, hover toward ink.** Don't add a second radius token,
+  don't reach for `bg-*/NN` alpha composites, and keep `*-hover`/`*-active`
+  darker on light (lighter on dark) — brand-lint fails all three.
 - Don't touch app logic or operations — that's `/prototype`.

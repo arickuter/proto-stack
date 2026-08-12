@@ -62,7 +62,9 @@ export default function LandingPage() {
             {features.map(({ icon: Icon, title, body }) => (
               <Card key={title}>
                 <Icon className="h-5 w-5 text-primary" aria-hidden />
-                <h3 className="mt-4 text-lg font-semibold text-foreground">{title}</h3>
+                <Heading as="h3" size="h4" className="mt-4">
+                  {title}
+                </Heading>
                 <p className="mt-2 text-sm text-muted-foreground">{body}</p>
               </Card>
             ))}

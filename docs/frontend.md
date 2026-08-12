@@ -21,9 +21,14 @@ These keep screens predictable so the next feature slice drops in cleanly.
 - **Why:** the happy path is one of four things a user sees; the other three are
   where "prototype" starts to show.
 - **How:** `const { data, isLoading, error } = useQuery(getThings)`. Guard
-  `isLoading` and `error` first; then handle **empty** — a one-sentence prompt
-  plus the CTA that fills it (`"No projects yet. Create your first one."`),
-  never a blank region.
+  `isLoading` with `<Skeleton>`, then `error` with `<Alert variant="error">`,
+  then **empty** with `<EmptyState>` — a one-sentence prompt plus the CTA that
+  fills it — never a blank region.
+- **The living reference:** the dashboard's notes card
+  ([`DashboardPage.tsx`](../app/src/dashboard/DashboardPage.tsx), backed by
+  [`src/notes/operations.ts`](../app/src/notes/operations.ts)) renders all three
+  states against a real query. Copy its shape rather than inventing placeholder
+  markup.
 
 ## Forms
 

@@ -2,9 +2,9 @@ import type { ReactNode } from "react";
 import { cn } from "../../cn";
 
 /**
- * Inline status message: form errors, submission confirmations. Reads
- * `--destructive` / `--success` so both light and dark are handled by the
- * token layer and a palette change is one edit rather than a grep.
+ * Inline status message: form errors, submission confirmations. Reads the
+ * `*-surface` / `*-on-surface` status tokens (real tokens, not alpha tints) so
+ * the text/background pair is contrast-graded and a palette change is one edit.
  */
 type AlertVariant = "error" | "success";
 
@@ -15,10 +15,8 @@ interface AlertProps {
 }
 
 const variantClass: Record<AlertVariant, string> = {
-  error: "border-destructive/30 bg-destructive/10 text-destructive",
-  // `--success` deliberately shares the brand green, so the text stays
-  // `--foreground`: green-on-green-tint fails contrast.
-  success: "border-success/30 bg-success/10 text-foreground",
+  error: "border-destructive bg-destructive-surface text-destructive-on-surface",
+  success: "border-success bg-success-surface text-success-on-surface",
 };
 
 export default function Alert({ variant, children, className }: AlertProps) {
@@ -28,7 +26,7 @@ export default function Alert({ variant, children, className }: AlertProps) {
       // which is right for a failure and wrong for a confirmation.
       role={variant === "error" ? "alert" : "status"}
       className={cn(
-        "rounded-[2px] border px-4 py-3 text-sm",
+        "rounded-control border px-4 py-3 text-sm",
         variantClass[variant],
         className,
       )}

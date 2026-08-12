@@ -6,7 +6,9 @@ import {
   Button,
   Card,
   Container,
+  Field,
   Heading,
+  Input,
   Section,
 } from "../client/components/ui";
 
@@ -44,21 +46,17 @@ export default function AccountPage({ user }: { user: AuthUser }) {
 
           <Card className="mt-8" padding="lg">
             <form onSubmit={onSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <label htmlFor="displayName" className="text-sm font-medium text-foreground">
-                  Display name
-                </label>
-                <input
+              <Field label="Display name" htmlFor="displayName">
+                <Input
                   id="displayName"
                   value={displayName}
                   onChange={(e) => {
                     setName(e.target.value);
                     setStatus("idle");
                   }}
-                  className="w-full rounded-[2px] border border-border bg-surface-elevated px-3 py-2 text-sm text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                   placeholder="How your name appears in the app"
                 />
-              </div>
+              </Field>
 
               {status === "saved" && <Alert variant="success">Saved.</Alert>}
               {status === "error" && error && <Alert variant="error">{error}</Alert>}

@@ -3,12 +3,21 @@
   "gradients": false,
   "shadows": false,
   "fonts": {
-    "sans": "Space Grotesk",
+    "display": "Space Grotesk",
+    "sans": "IBM Plex Sans",
     "mono": "IBM Plex Mono"
   },
   "hexAllowlist": ["src/brand/palette.ts"],
   "typography": {
     "allowUppercase": [],
-    "allowMono": ["src/dashboard/DashboardPage.tsx"]
-  }
+    "allowMono": []
+  },
+  "reservedTokens": [
+    "accent",
+    "primary-foreground",
+    "success-foreground",
+    "warning",
+    "warning-foreground",
+    "destructive-foreground"
+  ]
 }

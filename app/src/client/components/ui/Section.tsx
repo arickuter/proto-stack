@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { cn } from "../../cn";
 
-type SectionTone = "default" | "muted" | "accent" | "inverted";
+type SectionTone = "default" | "muted" | "fill" | "inverted";
 type SectionDensity = "default" | "compact";
 
 interface SectionProps {
@@ -15,8 +15,8 @@ interface SectionProps {
 const toneClass: Record<SectionTone, string> = {
   default: "bg-background",
   muted: "bg-muted",
-  // A flat tint one step off the page — the palette has no gradients.
-  accent: "bg-secondary",
+  // A flat fill one step off the page — the palette has no gradients.
+  fill: "bg-secondary",
   // Dark band. `.surface-inverted` also recolours nested headings.
   inverted: "surface-inverted",
 };

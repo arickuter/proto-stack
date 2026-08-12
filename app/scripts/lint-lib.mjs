@@ -32,6 +32,14 @@ export function lineOf(src, index) {
   return src.slice(0, index).split("\n").length;
 }
 
+// The full source line containing `index` — for rules whose exemption depends
+// on same-line context (e.g. `font-mono` allowed only inside a <code> element).
+export function lineTextOf(src, index) {
+  const start = src.lastIndexOf("\n", index - 1) + 1;
+  const end = src.indexOf("\n", index);
+  return src.slice(start, end === -1 ? src.length : end);
+}
+
 export class Reporter {
   constructor(appRoot) {
     this.appRoot = appRoot;
@@ -42,11 +50,14 @@ export class Reporter {
     this.violations.push({ file: relative(this.appRoot, file), line, rule, message });
   }
 
-  // Scan `text` for every match of `re` and report it.
-  scan(file, text, re, rule, message) {
+  // Scan `text` for every match of `re` and report it. `skip(match, text)`, if
+  // given, suppresses a match when it returns true — for exemptions that depend
+  // on the match's context rather than the file.
+  scan(file, text, re, rule, message, skip) {
     let m;
     const rx = new RegExp(re.source, re.flags.includes("g") ? re.flags : re.flags + "g");
     while ((m = rx.exec(text))) {
+      if (skip && skip(m, text)) continue;
       this.add(file, lineOf(text, m.index), rule, typeof message === "function" ? message(m) : message);
     }
   }

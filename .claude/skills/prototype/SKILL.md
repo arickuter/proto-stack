@@ -12,8 +12,12 @@ ruthlessly to **one core loop**. Speed to a demoable prototype is the whole poin
 
 Read [`AGENTS.md`](../../../AGENTS.md), [`docs/wasp-fundamentals.md`](../../../docs/wasp-fundamentals.md),
 [`docs/security.md`](../../../docs/security.md), [`docs/frontend.md`](../../../docs/frontend.md),
-and [`docs/performance.md`](../../../docs/performance.md). The operation shape in
-[`app/src/user/operations.ts`](../../../app/src/user/operations.ts) is your exemplar — copy it.
+and [`docs/performance.md`](../../../docs/performance.md). Two operation exemplars —
+copy them: [`app/src/user/operations.ts`](../../../app/src/user/operations.ts) (an
+action) and [`app/src/notes/operations.ts`](../../../app/src/notes/operations.ts) (a
+query + list mutations). The dashboard's notes card is the living reference for a
+query's loading / empty / error states — build yours the same way, don't invent
+placeholder markup.
 
 ## Steps
 

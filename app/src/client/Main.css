@@ -10,47 +10,62 @@
  * ink, a single green accent. No gradients, no shadows — depth comes from
  * hairline borders and inverted bands instead.
  *
- * Note on `--primary`: it is the GREEN accent (links, icons, inline emphasis,
- * checkmarks), NOT the button colour. Buttons are near-black and read
- * `--foreground` / `--background` directly in the Button primitive. A solid
- * green button would compete with the accent on every page.
+ * Note on `--primary`: it is the GREEN accent (links, icons, inline emphasis),
+ * NOT the button colour. Buttons are near-black and read `--foreground` /
+ * `--background` directly in the Button primitive. A solid green button would
+ * compete with the accent on every page.
+ *
+ * Interactive state tokens (`*-hover`, `*-active`) always move TOWARD ink — a
+ * step darker on light, a step lighter on dark. A control never fades toward
+ * the page on hover. Status tints (`*-surface` / `*-on-surface`) are real
+ * tokens, not alpha composites, so `npm run contrast` can grade them.
  */
 :root {
-  /* Surfaces */
+  /* Surfaces. Page < card < elevated in lightness, so a card earns its edge
+     against the page instead of relying on a shadow. */
   --background: oklch(98% 0.006 230);
   --foreground: oklch(18% 0.02 240);
-  --surface: oklch(98% 0.006 230);
+  --surface: oklch(99.3% 0.003 230);
   --surface-elevated: oklch(100% 0 0);
   /* Dark bands: differentiator section, footer. */
   --surface-inverted: oklch(17% 0.025 245);
   --surface-inverted-foreground: oklch(96% 0.01 230);
   --surface-inverted-muted: oklch(65% 0.02 235);
-  --surface-inverted-border: oklch(28% 0.02 240);
+  --surface-inverted-foreground-hover: oklch(100% 0 0);
 
   /* Brand */
   --primary: oklch(45% 0.152 142);
   --primary-foreground: oklch(98% 0.006 230);
   /* Brighter green for decorative marks on dark: arrows, dots, progress. */
   --accent: oklch(74% 0.19 142);
-  --accent-foreground: oklch(18% 0.02 240);
 
-  /* Status. Success shares the brand green deliberately — the design uses one
-     green for both check marks and accents, and two near-identical greens
-     would read as a mistake. */
-  --success: oklch(45% 0.152 142);
+  /* Status. Success is a darker, distinct green from the `--primary` link
+     accent — a saved state must not read as a link. */
+  --success: oklch(38% 0.11 145);
   --success-foreground: oklch(98% 0.006 230);
+  --success-surface: oklch(96% 0.03 145);
+  --success-on-surface: oklch(32% 0.09 145);
   --warning: oklch(70% 0.147 75);
   --warning-foreground: oklch(18% 0.02 240);
   /* Form validation and destructive actions. The only red in the system. */
   --destructive: oklch(55% 0.2 25);
   --destructive-foreground: oklch(98% 0.006 230);
+  --destructive-surface: oklch(96% 0.015 25);
+  --destructive-on-surface: oklch(45% 0.16 25);
+
+  /* Interactive states — toward ink (see header note). */
+  --foreground-hover: oklch(12% 0.02 240);
+  --foreground-active: oklch(8% 0.02 240);
 
   /* Neutrals */
-  --secondary: oklch(94% 0.012 230);
+  --secondary: oklch(92% 0.012 230);
   --secondary-foreground: oklch(30% 0.015 235);
+  --secondary-hover: oklch(88% 0.014 230);
+  --secondary-active: oklch(85% 0.014 230);
   --muted: oklch(94% 0.012 230);
   --muted-foreground: oklch(38% 0.015 235);
   --border: oklch(90% 0.012 230);
+  --border-hover: oklch(55% 0.015 235);
   --ring: oklch(45% 0.152 142);
 }
 
@@ -62,35 +77,50 @@
   --color-surface-inverted: var(--surface-inverted);
   --color-surface-inverted-foreground: var(--surface-inverted-foreground);
   --color-surface-inverted-muted: var(--surface-inverted-muted);
-  --color-surface-inverted-border: var(--surface-inverted-border);
+  --color-surface-inverted-foreground-hover: var(--surface-inverted-foreground-hover);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
+  --color-success-surface: var(--success-surface);
+  --color-success-on-surface: var(--success-on-surface);
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-destructive-surface: var(--destructive-surface);
+  --color-destructive-on-surface: var(--destructive-on-surface);
+  --color-foreground-hover: var(--foreground-hover);
+  --color-foreground-active: var(--foreground-active);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary-hover: var(--secondary-hover);
+  --color-secondary-active: var(--secondary-active);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-border: var(--border);
+  --color-border-hover: var(--border-hover);
   --color-ring: var(--ring);
 
-  /* Tailwind v4 reads the `--font-*` namespace for `font-sans`/`font-mono`.
-     The face files ship via @fontsource, imported in App.tsx. */
-  --font-sans: "Space Grotesk", system-ui, -apple-system, sans-serif;
+  /* Tailwind v4 reads the `--font-*` namespace for `font-display`/`font-sans`/
+     `font-mono`. The face files ship via @fontsource, imported in App.tsx.
+     Space Grotesk is the display face (headings, wordmark); IBM Plex Sans
+     carries body, UI and data. A display grotesque set at 16px in a dense
+     screen looks off, so it stays at size. */
+  --font-display: "Space Grotesk", system-ui, -apple-system, sans-serif;
+  --font-sans: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
   /* Functional only: mono is reserved for counters and code, not eyebrows or
      labels. A monospace label on marketing copy reads as a generated page.
      See docs/design-system.md. */
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
 
-  /* Radii. Near-square is the point — 2px on controls, 6px on cards. */
-  --radius: 2px;
-  --radius-card: 6px;
+  /* One radius — 2px on everything. Near-square is the personality; a second,
+     larger radius on cards would read as a different intention. Clearing the
+     namespace removes Tailwind's stock `rounded-*` scale so `rounded-md` and
+     bare `rounded` fail to build; `rounded-control` is the only radius. */
+  --radius-*: initial;
+  --radius-control: 2px;
 
   /* No shadows. Separation is hairline borders and inverted bands. Clearing
      the namespace removes Tailwind's stock shadow utilities outright, so
@@ -99,22 +129,35 @@
      if a brand genuinely wants elevation. */
   --shadow-*: initial;
 
-  /* Typography scale — fixed values. */
-  --text-display: 3.5rem;
+  /* Motion. Two durations and one easing — the whole system's vocabulary. */
+  --motion-fast: 120ms;
+  --motion-base: 200ms;
+  --motion-ease: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Typography scale. Fluid via clamp so steps breathe between 375px and
+     desktop without breakpoint classes at the call site. Each step carries its
+     own line-height and letter-spacing — tight at display, neutral at body. */
+  --text-display: clamp(2.25rem, 1.45rem + 3.4vw, 3.5rem);
   --text-display--line-height: 1.05;
-  --text-display--letter-spacing: -0.03em;
-  --text-h1: 2.5rem;
+  --text-display--letter-spacing: -0.025em;
+  --text-h1: clamp(1.75rem, 1.4rem + 1.5vw, 2.5rem);
   --text-h1--line-height: 1.1;
-  --text-h1--letter-spacing: -0.025em;
-  --text-h2: 1.875rem;
+  --text-h1--letter-spacing: -0.02em;
+  --text-h2: clamp(1.5rem, 1.3rem + 0.9vw, 1.875rem);
   --text-h2--line-height: 1.2;
-  --text-h2--letter-spacing: -0.02em;
+  --text-h2--letter-spacing: -0.015em;
   --text-h3: 1.25rem;
   --text-h3--line-height: 1.3;
+  --text-h3--letter-spacing: -0.01em;
+  --text-h4: 1.0625rem;
+  --text-h4--line-height: 1.4;
+  --text-h4--letter-spacing: -0.005em;
   --text-body: 1rem;
   --text-body--line-height: 1.6;
+  --text-body--letter-spacing: 0em;
   --text-small: 0.875rem;
   --text-small--line-height: 1.5;
+  --text-small--letter-spacing: 0em;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -128,83 +171,109 @@
     --surface-inverted: oklch(13% 0.02 245);
     --surface-inverted-foreground: oklch(96% 0.01 230);
     --surface-inverted-muted: oklch(65% 0.02 235);
-    --surface-inverted-border: oklch(26% 0.02 240);
+    --surface-inverted-foreground-hover: oklch(100% 0 0);
 
     /* Green lifts on dark so links keep AA contrast against `--background`. */
     --primary: oklch(78% 0.19 142);
     --primary-foreground: oklch(17% 0.025 245);
     --accent: oklch(80% 0.19 142);
-    --accent-foreground: oklch(17% 0.025 245);
 
-    --success: oklch(78% 0.19 142);
+    /* Success is a distinct, slightly cooler green from the primary link. */
+    --success: oklch(84% 0.16 148);
     --success-foreground: oklch(17% 0.025 245);
+    --success-surface: oklch(25% 0.05 145);
+    --success-on-surface: oklch(85% 0.13 145);
     --warning: oklch(80% 0.14 75);
     --warning-foreground: oklch(17% 0.025 245);
     --destructive: oklch(70% 0.17 25);
     --destructive-foreground: oklch(17% 0.025 245);
+    --destructive-surface: oklch(25% 0.06 25);
+    --destructive-on-surface: oklch(82% 0.09 25);
 
-    --secondary: oklch(24% 0.028 245);
+    /* Toward ink on dark means toward white. */
+    --foreground-hover: oklch(100% 0 0);
+    --foreground-active: oklch(90% 0.01 230);
+
+    --secondary: oklch(26% 0.028 245);
     --secondary-foreground: oklch(96% 0.01 230);
+    --secondary-hover: oklch(30% 0.028 245);
+    --secondary-active: oklch(33% 0.028 245);
     --muted: oklch(22% 0.025 245);
     --muted-foreground: oklch(68% 0.02 235);
     --border: oklch(28% 0.02 240);
+    --border-hover: oklch(55% 0.02 235);
     --ring: oklch(78% 0.19 142);
   }
 }
 
-* {
-  border-color: var(--border);
-  scrollbar-width: thin;
-  scrollbar-color: var(--muted-foreground) transparent;
-}
-
 /*
- * The horizontal-overflow guard lives on `html` ALONE, and neither element
- * gets a height. Giving `html, body` `height: 100%` plus `overflow-x: hidden`
- * turns `<body>` into the scroll container, which breaks `window.scrollTo`
- * and the router's scroll-restoration on navigation (the new page opens at
- * the offset the old one was left at). `overflow-x` on `html` still suppresses
- * sideways scroll without making any element a scroll container. Do not move
- * it onto `body`, and do not give either element a height — `min-h-screen` on
- * page wrappers is what fills short pages.
+ * Base element styles MUST live in `@layer base`. In Tailwind v4, CSS written
+ * outside a layer is "unlayered" and beats every `@layer utilities` rule
+ * regardless of specificity — so an unlayered `* { border-color }` or
+ * `h1 { line-height }` would silently override `border-primary`, `text-h1`, and
+ * every other utility. Keeping these in `base` lets a utility win, which is the
+ * whole point of the token/utility system.
  */
-html {
-  overflow-x: hidden;
-}
+@layer base {
+  * {
+    border-color: var(--border);
+    scrollbar-width: thin;
+    scrollbar-color: var(--muted-foreground) transparent;
+  }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: "Space Grotesk", system-ui, -apple-system, sans-serif;
-  font-feature-settings:
-    "rlig" 1,
-    "calt" 1;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+  /*
+   * The horizontal-overflow guard lives on `html` ALONE, and neither element
+   * gets a height. Giving `html, body` `height: 100%` plus `overflow-x: hidden`
+   * turns `<body>` into the scroll container, which breaks `window.scrollTo`
+   * and the router's scroll-restoration on navigation (the new page opens at
+   * the offset the old one was left at). `overflow-x` on `html` still suppresses
+   * sideways scroll without making any element a scroll container. Do not move
+   * it onto `body`, and do not give either element a height — `min-h-screen` on
+   * page wrappers is what fills short pages.
+   */
+  html {
+    overflow-x: hidden;
+  }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-weight: 700;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /*
+   * Display face + fallback metrics for RAW headings (e.g. Wasp's auth-form
+   * titles). The `<Heading>` primitive's `text-*` utilities override the
+   * line-height and letter-spacing per step — which only works because this
+   * rule is in `@layer base`, below utilities.
+   */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
 }
 
 /* Solid green emphasis inside a heading. There are no gradients in this
    palette; this is the one accent treatment for a heading word. */
 .accent-text {
   color: var(--primary);
-}
-
-/* The single modal backdrop. Derived from `--surface-inverted` rather than
-   pure black so the scrim belongs to the palette and shifts with the theme. */
-.modal-scrim {
-  background: color-mix(in oklab, var(--surface-inverted) 72%, transparent);
-  backdrop-filter: blur(4px);
 }
 
 button {
@@ -221,7 +290,7 @@ button {
 
 ::-webkit-scrollbar-thumb {
   background: var(--muted-foreground);
-  border-radius: 4px;
+  border-radius: var(--radius-control);
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -235,11 +304,11 @@ button {
 .surface-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius-card);
+  border-radius: var(--radius-control);
 }
 
 .surface-card-hoverable {
-  transition: border-color 0.15s ease;
+  transition: border-color var(--motion-fast) var(--motion-ease);
 }
 
 /* Border-only hover. Every surface sits flat on the page — no lift, no shadow. */
@@ -247,9 +316,21 @@ button {
   border-color: var(--primary);
 }
 
+/* One global reduced-motion contract. Transitions collapse, the pulse skeleton
+   goes static, and the spinner — the one accepted exception, since it signals
+   progress — is slowed rather than stopped. */
 @media (prefers-reduced-motion: reduce) {
-  .surface-card-hoverable {
-    transition: none;
+  *,
+  ::before,
+  ::after {
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-pulse {
+    animation: none !important;
+  }
+  .animate-spin {
+    animation-duration: 2s !important;
   }
 }
 
@@ -290,8 +371,8 @@ button {
   --color-gray400: var(--muted);
 
   --color-formErrorText: var(--destructive);
-  --color-errorBackground: color-mix(in oklab, var(--destructive) 12%, transparent);
-  --color-errorText: var(--foreground);
-  --color-successBackground: color-mix(in oklab, var(--success) 12%, transparent);
-  --color-successText: var(--foreground);
+  --color-errorBackground: var(--destructive-surface);
+  --color-errorText: var(--destructive-on-surface);
+  --color-successBackground: var(--success-surface);
+  --color-successText: var(--success-on-surface);
 }

@@ -15,7 +15,7 @@
 import { readFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
-import { walk, stripComments, Reporter, readConfig, lineOf } from "./lint-lib.mjs";
+import { walk, stripComments, Reporter, readConfig, lineOf, lineTextOf } from "./lint-lib.mjs";
 
 const APP = join(dirname(fileURLToPath(import.meta.url)), "..");
 const SRC = join(APP, "src");
@@ -67,17 +67,42 @@ for (const file of files) {
       "uppercase text — a mono/tracked-caps label reads as a generated page; use sentence case");
   }
 
-  // 6. Anti-tell: font-mono only where functional (counters, code).
+  // 6. Anti-tell: font-mono only where functional (counters, code). The escape
+  // hatch is per-element, not per-file: mono is allowed on the source line only
+  // when that line marks a functional context — a <code>/<kbd>/<samp> element
+  // or a [data-counter]. `allowMono` remains a coarse file-level override.
   if (!inList(file, allowMono)) {
     // `(?<!-)` skips the `--font-mono` token definition/reference in Main.css;
     // we only want the Tailwind `font-mono` utility class.
     r.scan(file, src, /(?<!-)\bfont-mono\b/, "mono-functional-only",
-      "font-mono outside the allowlist — mono is for counters/code, never labels");
+      "font-mono outside <code>/<kbd>/<samp>/[data-counter] — mono is for counters/code, never labels",
+      (m, text) => /<(?:code|kbd|samp)\b|data-counter/.test(lineTextOf(text, m.index)));
   }
 
   // 7. Anti-tell: shouty ALL-CAPS runs typed directly into copy.
   r.scan(file, src, /\b[A-Z]{2,}(?:\s+[A-Z]{2,}){1,}\b/, "no-shouting",
     (m) => `all-caps run "${m[0].trim()}" — write it in sentence case`);
+
+  // 8. One radius. `rounded-control` is the only radius utility (`rounded-full`
+  // stays for genuine circles). Arbitrary `rounded-[…]`, bare `rounded`, and
+  // the stock scale are all cleared so the near-square feel can't drift.
+  r.scan(file, src, /\brounded[\w-]*-\[[^\]]*\]/, "radius-token-only",
+    (m) => `arbitrary radius "${m[0]}" — use rounded-control (the one radius token)`);
+  r.scan(file, src, /(?<![\w-])rounded(?![\w-])|\brounded-(?:xs|sm|md|lg|xl|2xl|3xl|none)\b/, "radius-token-only",
+    (m) => `"${m[0]}" — stock/bare radii are cleared; use rounded-control`);
+
+  // 9. Font family must reference a --font-* token, never a literal — a font
+  // rebrand edits the token, and a stray literal silently outlives it.
+  r.scan(file, src, /(?:font-family|fontFamily)\s*:\s*(?![^;,}\n]*var\(--font-)[^;}\n]*["']/, "no-font-literal",
+    "font-family literal — set the --font-* token in @theme and reference it with var(--font-…)");
+
+  // 10. No alpha-composited colour utilities in components. A `/NN` tint's
+  // rendered colour is not a token, so `npm run contrast` can't grade it — use
+  // a real token (e.g. --destructive-surface, --secondary-hover).
+  if (!relPath.endsWith(".css")) {
+    r.scan(file, src, /\b(?:bg|text|border|outline|ring|fill|stroke|decoration)-[a-z][\w-]*\/\d{1,3}\b/, "no-alpha-composite",
+      (m) => `alpha-composited "${m[0]}" — can't be contrast-checked; add a real token (see --destructive-surface)`);
+  }
 }
 
 // 8. brand.config self-consistency: `flat` is the shorthand the docs use, so it
@@ -102,7 +127,7 @@ if (cfg.shadows === true && hasShadowKill) {
 }
 
 // fonts must appear in Main.css.
-for (const [key, name] of [["sans", cfg.fonts?.sans], ["mono", cfg.fonts?.mono]]) {
+for (const [key, name] of [["display", cfg.fonts?.display], ["sans", cfg.fonts?.sans], ["mono", cfg.fonts?.mono]]) {
   if (name && !css.includes(name)) {
     r.add(MAIN_CSS, 1, "font-config-drift",
       `brand.config fonts.${key} is "${name}" but Main.css --font-${key} does not reference it`);
@@ -113,12 +138,15 @@ for (const [key, name] of [["sans", cfg.fonts?.sans], ["mono", cfg.fonts?.mono]]
 // and every token a component depends on must be present. A silent rename here
 // orphans call-sites like `bg-surface`.
 const REQUIRED = [
-  "background", "foreground", "surface", "surface-elevated",
-  "surface-inverted", "surface-inverted-foreground", "surface-inverted-muted", "surface-inverted-border",
-  "primary", "primary-foreground", "accent", "accent-foreground",
-  "success", "success-foreground", "warning", "warning-foreground",
-  "destructive", "destructive-foreground", "secondary", "secondary-foreground",
-  "muted", "muted-foreground", "border", "ring",
+  "background", "foreground", "foreground-hover", "foreground-active",
+  "surface", "surface-elevated",
+  "surface-inverted", "surface-inverted-foreground", "surface-inverted-muted", "surface-inverted-foreground-hover",
+  "primary", "primary-foreground", "accent",
+  "success", "success-foreground", "success-surface", "success-on-surface",
+  "warning", "warning-foreground",
+  "destructive", "destructive-foreground", "destructive-surface", "destructive-on-surface",
+  "secondary", "secondary-foreground", "secondary-hover", "secondary-active",
+  "muted", "muted-foreground", "border", "border-hover", "ring",
 ];
 const darkIdx = css.search(/@media\s*\(prefers-color-scheme:\s*dark\)/);
 const tokensIn = (region) => new Set([...region.matchAll(/--([\w-]+):\s*oklch\(/g)].map((m) => m[1]));
@@ -133,6 +161,30 @@ for (const t of lightTokens) {
 }
 for (const t of darkTokens) {
   if (!lightTokens.has(t)) r.add(MAIN_CSS, 1, "token-canon", `--${t} defined in the dark block but not in :root light (theme parity)`);
+}
+
+// Token orphans: a colour token defined in `:root` but consumed nowhere is drift
+// — the check that would have caught a whole palette of dead tokens. Consumption
+// is a Tailwind utility (`bg-<token>`, `text-<token>`, …) or a `var(--token)` in
+// a CSS rule. Tokens defined ahead of need live in brand.config `reservedTokens`,
+// each still kept honest by a contrast pair. `@theme` alias lines are stripped so
+// a token's own `--color-*: var(--token)` mapping never counts as usage.
+const reserved = new Set(cfg.reservedTokens ?? []);
+const usageHaystack = files
+  .map((f) => {
+    const text = readFileSync(f, "utf8");
+    return f === MAIN_CSS
+      ? text.replace(/^\s*--color-[\w-]+:\s*var\(--[\w-]+\);\s*$/gm, "")
+      : text;
+  })
+  .join("\n");
+for (const t of lightTokens) {
+  if (reserved.has(t)) continue;
+  const utility = new RegExp(`\\b(?:${PROP})-${t}(?![\\w-])`);
+  if (!utility.test(usageHaystack) && !usageHaystack.includes(`var(--${t})`)) {
+    r.add(MAIN_CSS, 1, "token-orphan",
+      `--${t} is defined but never consumed — use it, delete it, or add it to reservedTokens`);
+  }
 }
 
 r.finish("brand-lint");

@@ -23,4 +23,17 @@ model User {
   username    String?  @unique
   displayName String?
   isAdmin     Boolean  @default(false)
+  notes       Note[]
+}
+
+// The reference feature's entity. A per-user list, the smallest thing that
+// exercises a real query with loading / empty / error states on the dashboard.
+model Note {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  text      String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+
+  @@index([userId, createdAt])
 }

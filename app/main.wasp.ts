@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 
-import { action, app, page, route } from "@wasp.sh/spec";
+import { action, app, page, query, route } from "@wasp.sh/spec";
 
 // Auth field mappers (email + optional Google). Runs server-side at signup.
 import {
@@ -23,6 +23,7 @@ import NotFoundPage from "./src/client/components/NotFoundPage" with { type: "re
 
 // Operations.
 import { updateDisplayName } from "./src/user/operations" with { type: "ref" };
+import { getNotes, createNote, deleteNote } from "./src/notes/operations" with { type: "ref" };
 
 /*
  * `main.wasp.ts` is evaluated by Wasp as a plain Node script, and Wasp injects
@@ -137,5 +138,9 @@ export default app({
     route("NotFoundRoute", "*", page(NotFoundPage)),
 
     action(updateDisplayName, { entities: ["User"] }),
+
+    query(getNotes, { entities: ["Note"] }),
+    action(createNote, { entities: ["Note"] }),
+    action(deleteNote, { entities: ["Note"] }),
   ],
 });
