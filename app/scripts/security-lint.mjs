@@ -30,6 +30,10 @@ const SECRET_PATTERNS = [
   [/\bre_[A-Za-z0-9]{16,}/, "Resend API key"],
   [/AKIA[0-9A-Z]{16}/, "AWS access key id"],
   [/-----BEGIN [A-Z ]*PRIVATE KEY-----/, "private key (PEM)"],
+  [/\bsk-(ant-|proj-)?[A-Za-z0-9_-]{20,}/, "OpenAI / Anthropic API key"],
+  [/\bgh[pousr]_[A-Za-z0-9]{36,}/, "GitHub token"],
+  [/\bAIza[0-9A-Za-z_-]{35}\b/, "Google API key"],
+  [/\bxox[baprs]-[A-Za-z0-9-]{10,}/, "Slack token"],
 ];
 
 function markerBefore(raw, index, marker) {
@@ -75,8 +79,10 @@ for (const file of files) {
     }
   }
 
-  // 6. Every exported operation is auth-checked and input-validated.
-  if (file.endsWith("operations.ts")) {
+  // 6. Every exported operation is auth-checked and input-validated. Queries and
+  // actions can live in operations.ts, queries.ts, or actions.ts — check all
+  // three so the rule can't be dodged by renaming the file.
+  if (/(?:^|[/\\])(operations|queries|actions)\.ts$/.test(relPath)) {
     const exportRe = /export\s+(?:async\s+)?(?:const|function)\s+([A-Za-z0-9_]+)/g;
     const marks = [...raw.matchAll(exportRe)].map((m) => ({ name: m[1], index: m.index }));
     for (let i = 0; i < marks.length; i++) {

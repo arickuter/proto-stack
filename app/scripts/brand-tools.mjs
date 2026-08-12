@@ -15,7 +15,7 @@
  * math is validated against known conversions in the /brand skill's checks.
  */
 
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -196,7 +196,7 @@ function renderThemeObject(name, tokens) {
   return `export const ${name} = {\n${lines.join("\n")}\n} as const;`;
 }
 
-function runMirror() {
+function buildMirror() {
   const { light, dark } = parseThemes();
   const header = `/*
  * GENERATED FILE — do not edit by hand.
@@ -218,17 +218,34 @@ function runMirror() {
     renderThemeObject("PALETTE_DARK", dark),
     "",
   ].join("\n");
+  return { body, light, dark };
+}
 
+function runMirror() {
+  const { body, light, dark } = buildMirror();
   writeFileSync(PALETTE_TS, body);
   console.log(`✓ mirror: wrote ${Object.keys(light).length} light + ${Object.keys(dark).length} dark tokens to src/brand/palette.ts`);
+}
+
+// `mirror --check` re-derives the mirror in memory and fails if it differs from
+// the committed palette.ts, so a token edit that skips `npm run brand:mirror`
+// can't slip through `npm run check` with a stale hex mirror.
+function runMirrorCheck() {
+  const { body } = buildMirror();
+  const current = existsSync(PALETTE_TS) ? readFileSync(PALETTE_TS, "utf8") : "";
+  if (current !== body) {
+    console.error("✗ mirror: src/brand/palette.ts is out of sync with Main.css. Run `npm run brand:mirror`.");
+    process.exit(1);
+  }
+  console.log("✓ mirror: palette.ts is in sync with Main.css.");
 }
 
 // ---------------------------------------------------------------------------
 
 const cmd = process.argv[2];
 if (cmd === "contrast") runContrast();
-else if (cmd === "mirror") runMirror();
+else if (cmd === "mirror") process.argv.includes("--check") ? runMirrorCheck() : runMirror();
 else {
-  console.error("usage: brand-tools.mjs <contrast|mirror>");
+  console.error("usage: brand-tools.mjs <contrast|mirror [--check]>");
   process.exit(2);
 }

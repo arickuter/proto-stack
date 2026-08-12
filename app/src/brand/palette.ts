@@ -19,13 +19,13 @@ export const PALETTE_LIGHT = {
   surfaceInvertedForeground: "#ebf3f7", // --surface-inverted-foreground
   surfaceInvertedMuted: "#84919a", // --surface-inverted-muted
   surfaceInvertedBorder: "#202a32", // --surface-inverted-border
-  primary: "#006900", // --primary
+  primary: "#076800", // --primary
   primaryForeground: "#f5f9fc", // --primary-foreground
   accent: "#58c74e", // --accent
   accentForeground: "#09131a", // --accent-foreground
-  success: "#006900", // --success
+  success: "#076800", // --success
   successForeground: "#f5f9fc", // --success-foreground
-  warning: "#d48e00", // --warning
+  warning: "#d38f04", // --warning
   warningForeground: "#09131a", // --warning-foreground
   destructive: "#cc272e", // --destructive
   destructiveForeground: "#f5f9fc", // --destructive-foreground
@@ -34,7 +34,7 @@ export const PALETTE_LIGHT = {
   muted: "#e3edf2", // --muted
   mutedForeground: "#3b4449", // --muted-foreground
   border: "#d6e0e4", // --border
-  ring: "#006900", // --ring
+  ring: "#076800", // --ring
 } as const;
 
 /** Dark theme — the prefers-color-scheme: dark block in Main.css. */

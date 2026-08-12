@@ -28,7 +28,7 @@
   --surface-inverted-border: oklch(28% 0.02 240);
 
   /* Brand */
-  --primary: oklch(45% 0.16 142);
+  --primary: oklch(45% 0.152 142);
   --primary-foreground: oklch(98% 0.006 230);
   /* Brighter green for decorative marks on dark: arrows, dots, progress. */
   --accent: oklch(74% 0.19 142);
@@ -37,9 +37,9 @@
   /* Status. Success shares the brand green deliberately — the design uses one
      green for both check marks and accents, and two near-identical greens
      would read as a mistake. */
-  --success: oklch(45% 0.16 142);
+  --success: oklch(45% 0.152 142);
   --success-foreground: oklch(98% 0.006 230);
-  --warning: oklch(70% 0.15 75);
+  --warning: oklch(70% 0.147 75);
   --warning-foreground: oklch(18% 0.02 240);
   /* Form validation and destructive actions. The only red in the system. */
   --destructive: oklch(55% 0.2 25);
@@ -51,7 +51,7 @@
   --muted: oklch(94% 0.012 230);
   --muted-foreground: oklch(38% 0.015 235);
   --border: oklch(90% 0.012 230);
-  --ring: oklch(45% 0.16 142);
+  --ring: oklch(45% 0.152 142);
 }
 
 @theme inline {

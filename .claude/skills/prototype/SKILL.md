@@ -11,7 +11,8 @@ ruthlessly to **one core loop**. Speed to a demoable prototype is the whole poin
 ## First, read the rules
 
 Read [`AGENTS.md`](../../../AGENTS.md), [`docs/wasp-fundamentals.md`](../../../docs/wasp-fundamentals.md),
-and [`docs/security.md`](../../../docs/security.md). The operation shape in
+[`docs/security.md`](../../../docs/security.md), [`docs/frontend.md`](../../../docs/frontend.md),
+and [`docs/performance.md`](../../../docs/performance.md). The operation shape in
 [`app/src/user/operations.ts`](../../../app/src/user/operations.ts) is your exemplar — copy it.
 
 ## Steps
@@ -53,9 +54,13 @@ and [`docs/security.md`](../../../docs/security.md). The operation shape in
 ## Guardrails
 
 - **One core loop.** If the idea has five features, build one and list the rest.
-- Every operation: zod-parse input, check `context.user` first, scope reads/writes
-  to `context.user.id` (or mark `// public-operation:` / `// no-input:` deliberately).
-  security-lint enforces this.
+- Every operation: check `context.user` first, then zod-parse input, then scope
+  reads/writes to `context.user.id` (or mark `// public-operation:` / `// no-input:`
+  deliberately). security-lint enforces this.
+- **Index the schema:** `@@index` on foreign keys and any filtered/sorted column;
+  bound list queries with `take` + `orderBy`. See [`docs/performance.md`](../../../docs/performance.md).
+- **Barely any comments.** Default to none; a comment must explain a non-obvious
+  *why*, never narrate the code. See the Comments rules in [`AGENTS.md`](../../../AGENTS.md).
 - **Never touch design tokens** — that's `/brand`. Never edit `src/brand/palette.ts`.
 - No payments. If the idea needs them, point at [`docs/payments-later.md`](../../../docs/payments-later.md).
 - Want real Google login in dev? Follow [`docs/providers.md`](../../../docs/providers.md#google-oauth) — don't improvise console steps.

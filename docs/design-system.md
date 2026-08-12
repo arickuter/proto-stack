@@ -25,6 +25,7 @@ Always reference a token by its semantic name — `bg-primary`,
 | `--success` (= `--primary`) | Shares the accent deliberately. |
 | `--warning`, `--destructive` | Semantic status; the only amber / red. |
 | `--border` | All borders — hairline separation replaces shadow. |
+| `--ring` | Keyboard focus ring (`outline-ring`). Accessibility, not decoration. |
 | `--radius` 2px / `--radius-card` 6px | Control / card corners. |
 
 Two structural rules make the "flat" look:
@@ -33,8 +34,13 @@ Two structural rules make the "flat" look:
   fails to build. Depth is hairline borders and inverted bands.
 - **No gradients.** `.accent-text` gives a solid-accent heading word.
 
-`brand-lint` enforces both, plus "no raw colours / hex" and token parity
-between the two themes.
+`brand-lint` enforces both, plus "no raw colours / hex". It also checks a **token
+canon**: 24 required tokens (the ones above) must be defined, and every token
+must appear in **both** the light `:root` and the dark block — a token in one
+theme but not the other fails the build. It also fails on `no-shouting` (two or
+more adjacent ALL-CAPS words anywhere in source — an accidental shouty label or
+string). `npm run check` additionally verifies `palette.ts` is in sync with the
+tokens (`mirror --check`), so a token edit can't ship with a stale hex mirror.
 
 ## Non-CSS surfaces: palette.ts
 

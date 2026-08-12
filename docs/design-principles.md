@@ -60,6 +60,29 @@ from that — but the principles below hold for every brand.
   `shadows` in `brand.config.json` and removes the `--shadow-*: initial` line
   together — the two must move as one (brand-lint checks this).
 
+## Accessibility
+
+Contrast (above) is the measured part; these are the rest, and the primitives
+already implement them — the job is to preserve them, not reinvent them, and a
+`/brand` rewrite must keep every one.
+
+- **Focus is always visible.** Interactive elements show a ring on keyboard
+  focus: `focus-visible:outline-2 outline-offset-2 outline-ring` (see
+  `Button.tsx`). `--ring` exists for exactly this — never `outline-none` without
+  a replacement.
+- **Live feedback gets a role.** An error message is `role="alert"`, a success
+  message `role="status"` — the `Alert` primitive does this. A status the user
+  can't see announced is a status a screen-reader user misses.
+- **Icons that mean nothing get `aria-hidden`;** images that mean something get
+  real `alt` text. Decorative Lucide icons next to a text label are decoration.
+- **Heading levels are semantic.** `Heading` decouples `as` (the `h1`–`h4`
+  level, for document structure) from `size` (the visual scale) — pick the level
+  by outline position, the size by looks. Don't skip levels for styling.
+- **Everything works from the keyboard.** Real `<button>` and `<a>` (the `Button`
+  primitive renders one or the other) — never a click-handler on a `<div>`.
+- **Respect `prefers-reduced-motion`.** Main.css already opts transitions out
+  under it; any new animation does the same.
+
 ## Generated-page tells (forbidden regardless of brand)
 
 These read as "an AI built this in one shot." Don't produce them:

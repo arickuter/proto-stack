@@ -24,6 +24,19 @@ logic. If you think you need to, you're probably solving it at the wrong layer.
 - **How:** `if (!context.user) throw new HttpError(401)`. For admin-only
   actions, also check `context.user.isAdmin` server-side — hiding a button in
   the UI is not authorization.
+- **Where it's enforced:** operations must live in a file named `operations.ts`,
+  `queries.ts`, or `actions.ts` — security-lint only checks those. An operation
+  hidden in a differently-named file gets **no** auth/input enforcement.
+
+## The lint markers
+
+Three comment markers tell security-lint an omission is intentional:
+`// public-operation:` (an operation with no auth check), `// no-input:` (an
+operation that takes no args), and `// external-api:` (a deliberate client-side
+call to a keyless public API). Each must sit on the line **directly above** the
+code it excuses (the linter looks back a few lines only) — a marker parked at the
+top of the file doesn't count. Use them to state intent, not to silence a real
+finding.
 
 ## Scope every read and write to the current user (IDOR)
 
@@ -42,8 +55,10 @@ logic. If you think you need to, you're probably solving it at the wrong layer.
   `// no-input:` for an arg-less op).
 - **Why:** the client payload is attacker-controlled. An unvalidated field
   flows straight into Prisma.
-- **How:** a `z.object({...})` schema and `schema.parse(rawArgs)` as the first
-  lines. security-lint checks for this.
+- **How:** a `z.object({...})` schema and `schema.parse(rawArgs)` immediately
+  after the auth guard, before any input is used. (Auth check is the *first*
+  statement so an unauthenticated caller does no work; the parse comes right
+  after.) security-lint checks for this.
 
 ## Keep secrets out of the client and the repo
 
@@ -60,6 +75,17 @@ logic. If you think you need to, you're probably solving it at the wrong layer.
 - **Rule:** no `dangerouslySetInnerHTML`.
 - **Why:** it's an XSS sink the moment any of the content is user-influenced.
 - **How:** render user/markdown content with `<ReactMarkdown>`.
+
+## Call third-party APIs from the server, not the client
+
+- **Rule:** no `fetch("https://…")` to an external origin from client code.
+- **Why:** a browser call exposes any API key it carries, has no server-side
+  validation of the response, and is subject to CORS and the third party's rate
+  limits per user. Keys and trust boundaries belong on the server.
+- **How:** call the third party from an operation (or a Wasp `api`) where the key
+  lives in `.env.server`, then return only what the client needs. For a genuinely
+  public, keyless API that *must* run in the browser, mark the call
+  `// external-api:` on the line directly above it. security-lint enforces this.
 
 ## Error hygiene & data minimalism
 

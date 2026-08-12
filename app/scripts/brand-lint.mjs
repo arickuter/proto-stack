@@ -80,7 +80,14 @@ for (const file of files) {
     (m) => `all-caps run "${m[0].trim()}" — write it in sentence case`);
 }
 
-// 8. brand.config ↔ Main.css consistency + token canon.
+// 8. brand.config self-consistency: `flat` is the shorthand the docs use, so it
+// must not contradict the depth flags it summarises.
+if (cfg.flat === true && (cfg.shadows === true || cfg.gradients === true)) {
+  r.add(join(APP, "src/brand/brand.config.json"), 1, "config-flat-drift",
+    "brand.config flat:true but shadows/gradients are enabled — a flat brand has neither");
+}
+
+// 9. brand.config ↔ Main.css consistency + token canon.
 const css = readFileSync(MAIN_CSS, "utf8");
 
 // shadows flag must agree with the `--shadow-*: initial` kill line.
@@ -123,6 +130,9 @@ for (const t of REQUIRED) {
 }
 for (const t of lightTokens) {
   if (!darkTokens.has(t)) r.add(MAIN_CSS, 1, "token-canon", `--${t} defined in light but not in the dark block (theme parity)`);
+}
+for (const t of darkTokens) {
+  if (!lightTokens.has(t)) r.add(MAIN_CSS, 1, "token-canon", `--${t} defined in the dark block but not in :root light (theme parity)`);
 }
 
 r.finish("brand-lint");
