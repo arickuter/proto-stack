@@ -1,7 +1,7 @@
 import { forwardRef } from "react";
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from "react";
 import { Link } from "react-router";
-import { Loader2 } from "lucide-react";
+import { LoaderCircle } from "lucide-react";
 import { cn } from "../../cn";
 
 type ButtonVariant =
@@ -120,7 +120,7 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(
         {...buttonRest}
       >
         {loading && (
-          <Loader2 className="w-4 h-4 animate-spin absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" />
+          <LoaderCircle className="w-4 h-4 animate-spin absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" />
         )}
         <span className={cn("inline-flex items-center gap-2", loading && "invisible")}>
           {loading && loadingText ? loadingText : children}
