@@ -13,6 +13,13 @@
  * that isn't there, a page with no <title> or the wrong heading level, or a
  * SITE_URL that /ship set in one file but not the others. The judgment calls
  * (what copy to write, when to prerender a new route) live in docs/seo.md.
+ *
+ * Two parsing invariants this lint relies on — keep them true when editing
+ * main.wasp.ts: (1) every `head:` entry is a DOUBLE-QUOTED string; a backtick
+ * template literal is skipped by the extractor, so its tags go unchecked. (2)
+ * the `app({ … })` config (`name` / `title`) sits BEFORE the `head:` key — the
+ * name-sync slice reads up to `head:`. Neither is worth an AST parser; a plain
+ * regex is the right size for a spec file this small.
  */
 
 import { readFileSync, existsSync } from "node:fs";

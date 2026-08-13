@@ -46,6 +46,15 @@ export default function DashboardPage({ user }: { user: AuthUser }) {
     }
   }
 
+  async function onDelete(id: number) {
+    setFormError(null);
+    try {
+      await deleteNote({ id });
+    } catch (err) {
+      setFormError(err instanceof Error ? err.message : "Could not delete the note");
+    }
+  }
+
   return (
     <main id="main" className="flex-1">
       <PageMeta title="Dashboard" />
@@ -102,7 +111,7 @@ export default function DashboardPage({ user }: { user: AuthUser }) {
                         size="sm"
                         variant="ghost-secondary"
                         aria-label="Delete note"
-                        onClick={() => deleteNote({ id: note.id })}
+                        onClick={() => onDelete(note.id)}
                       >
                         <Trash2 className="h-4 w-4" aria-hidden />
                       </Button>

@@ -37,8 +37,11 @@ from that — but the principles below hold for every brand.
   `--secondary-hover`, …) — a control never fades toward the page on hover.
   Never use an alpha-composited utility (`bg-destructive/10`) for a surface:
   its rendered colour isn't a token, so `npm run contrast` can't grade it. Give
-  a status tint a real `--*-surface` / `--*-on-surface` pair instead. brand-lint
-  fails on both an alpha composite and a hover that drops toward the page.
+  a status tint a real `--*-surface` / `--*-on-surface` pair instead. `npm run
+  check` fails on both — brand-lint (`no-alpha-composite`) on the alpha
+  composite, and `npm run contrast` on a `*-hover` whose lightness steps toward
+  the page instead of toward ink. (Only hover is linted; `*-active` follows the
+  same intent but the ink end saturates at white on dark, so it's reviewed.)
 
 ## Typography
 
@@ -67,9 +70,10 @@ from that — but the principles below hold for every brand.
 - **Radius is personality.** 0–2px reads technical/precise; 6–10px reads
   friendly; 12px+ reads playful. The default is 2px on *everything*
   (`--radius-control`) — one radius, near-square, held by brand-lint (no
-  `rounded-[…]`, no bare `rounded`, no stock `rounded-md`). A second, larger
-  card radius reads as a different intention; if a brief wants friendlier,
-  move the one token, don't add a second.
+  `rounded-[…]`, no bare `rounded`, no stock `rounded-md`, and its `single-radius`
+  rule fails a second `--radius-*` token in Main.css). A second, larger card
+  radius reads as a different intention; if a brief wants friendlier, move the
+  one token, don't add a second.
 - **Depth without shadows by default.** Separation comes from hairline borders,
   inverted (dark) bands, and `gap: 1px` grids that let the background show
   through as dividers. If a brand genuinely needs elevation, `/brand` flips
@@ -142,10 +146,15 @@ Each is a place the demo works and the product doesn't:
 - **Generic error copy.** "Something went wrong. Please try again" strips the
   voice out exactly when a user needs reassurance. Say what happened and what's
   still fine ("The rest of the app is fine. Reload to try again").
-- **Dead variants and unwired tokens.** A component variant nothing renders, a
-  token defined and never consumed, a class with no element — all read as
-  half-built. brand-lint's `token-orphan` rule fails the build on an unused
-  colour token; hold the same bar for variants and CSS classes it can't see.
+- **Dead variants and unwired tokens.** In **feature code**, a component variant
+  nothing renders, a token defined and never consumed, a class with no element —
+  all read as half-built. brand-lint's `token-orphan` rule fails the build on an
+  unused colour token; hold the same bar for feature variants and CSS classes it
+  can't see. The `ui` primitives are the sanctioned exception — like
+  `reservedTokens`, they carry a deliberate ahead-of-need API: every variant and
+  prop the [`design-system.md`](design-system.md) table documents counts as
+  wired, even if no page renders it yet. An *undocumented* primitive variant
+  still fails the bar.
 - **Keyboard and focus neglect.** Tab through it. If focus vanishes, if a
   control isn't reachable, or if the target is a 20px text link, it wasn't
   finished — it was screenshotted.

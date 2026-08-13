@@ -11,7 +11,7 @@
     "contrast": "node scripts/brand-tools.mjs contrast",
     "brand:mirror": "node scripts/brand-tools.mjs mirror",
     "mirror:check": "node scripts/brand-tools.mjs mirror --check",
-    "check": "npm run brand-lint && npm run security-lint && npm run seo-lint && npm run contrast && npm run mirror:check",
+    "check": "node scripts/brand-lint.mjs && node scripts/security-lint.mjs && node scripts/seo-lint.mjs && node scripts/brand-tools.mjs contrast && node scripts/brand-tools.mjs mirror --check",
     "test": "vitest run"
   },
   "workspaces": [

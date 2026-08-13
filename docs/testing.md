@@ -42,7 +42,7 @@ or the linters:
 
 ## Why it's not in `npm run check`
 
-`npm run check` (brand-lint + security-lint + contrast + palette mirror) is the
-always-on gate every change must pass. `npm run test` is separate on purpose:
+`npm run check` (brand-lint + security-lint + seo-lint + contrast + palette-mirror
+sync) is the always-on gate every change must pass. `npm run test` is separate on purpose:
 with few or no tests, folding it into `check` would add nothing most of the time.
 Run it when you've written logic worth pinning.

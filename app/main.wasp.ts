@@ -92,7 +92,7 @@ export default app({
     "<meta name='viewport' content='width=device-width, initial-scale=1' />",
     "<link rel='icon' href='/favicon.svg' type='image/svg+xml' />",
     "<link rel='manifest' href='/site.webmanifest' />",
-    "<meta name='theme-color' content='#f7fafc' />",
+    "<meta name='theme-color' content='#f5f9fc' />",
     "<meta name='description' content='Validate the idea before you build the product.' />",
     "<meta property='og:type' content='website' />",
     "<meta property='og:site_name' content='ProtoStack' />",

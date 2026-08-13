@@ -32,7 +32,7 @@ export default function AccountPage({ user }: { user: AuthUser }) {
       setStatus("saved");
     } catch (err) {
       setStatus("error");
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      setError(err instanceof Error ? err.message : "Could not save your display name.");
     }
   }
 

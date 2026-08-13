@@ -20,7 +20,7 @@
       "Bash(npm run test)",
       "Bash(npm audit:*)",
       "Bash(node scripts/brand-tools.mjs:*)",
-      "Bash(npx tsc:*)",
+      "Bash(npx tsc -p tsconfig.src.json:*)",
       "Bash(npx vite build)",
       "Bash(ls:*)",
       "WebSearch",
@@ -30,6 +30,12 @@
       "Bash(wasp deploy:*)",
       "Bash(wasp db reset:*)",
       "Bash(wasp clean)"
+    ],
+    "deny": [
+      "Edit(app/src/brand/palette.ts)",
+      "Write(app/src/brand/palette.ts)",
+      "Edit(app/.wasp/**)",
+      "Write(app/.wasp/**)"
     ]
   }
 }

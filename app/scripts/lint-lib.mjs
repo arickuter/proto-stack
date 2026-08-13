@@ -1,9 +1,10 @@
 /*
- * Shared helpers for brand-lint and security-lint. Dependency-free.
+ * Shared helpers for the lint scripts (brand-lint, security-lint, seo-lint) and
+ * the brand-tools colour engine. Dependency-free.
  *
- * Both linters follow the same contract as skillfront's brand-lint: scan
- * source, collect violations with file:line, print them, exit non-zero if any.
- * Every rule corresponds to something that has actually shipped broken.
+ * The linters follow the same contract as skillfront's brand-lint: scan source,
+ * collect violations with file:line, print them, exit non-zero if any. Every
+ * rule corresponds to something that has actually shipped broken.
  */
 
 import { readdirSync, readFileSync, statSync } from "node:fs";
@@ -38,6 +39,30 @@ export function lineTextOf(src, index) {
   const start = src.lastIndexOf("\n", index - 1) + 1;
   const end = src.indexOf("\n", index);
   return src.slice(start, end === -1 ? src.length : end);
+}
+
+// Split Main.css into the light `:root` region and the dark
+// `@media (prefers-color-scheme: dark)` region. The single source of truth for
+// "where the two token blocks are" — brand-lint (canon/parity/orphan) and
+// brand-tools (contrast/mirror) both consume this, so they can never disagree
+// about which declarations belong to which theme.
+export function splitThemeRegions(css) {
+  const darkIdx = css.search(/@media\s*\(prefers-color-scheme:\s*dark\)/);
+  if (darkIdx === -1) {
+    throw new Error("Main.css: could not find the dark @media block.");
+  }
+  return { light: css.slice(0, darkIdx), dark: css.slice(darkIdx) };
+}
+
+// Extract every `--name: oklch(...)` declaration in a region as a
+// name -> raw-oklch-string map. Non-oklch declarations (`@theme` var() refs,
+// radii, motion) are ignored by the regex.
+export function extractOklchTokens(region) {
+  const tokens = {};
+  const re = /--([\w-]+):\s*(oklch\([^)]*\))\s*;/g;
+  let m;
+  while ((m = re.exec(region))) tokens[m[1]] = m[2];
+  return tokens;
 }
 
 export class Reporter {

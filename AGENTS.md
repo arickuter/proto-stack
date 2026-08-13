@@ -21,7 +21,7 @@ proto-stack/
     ├── main.wasp.ts         # spec: app config, routes, pages, operations
     ├── schema.prisma        # data models → Wasp entities (auth tables are auto-generated)
     ├── .env.server.example  # copy to .env.server
-    ├── scripts/             # brand-lint, security-lint, brand-tools (contrast/mirror), lint-lib (shared helpers)
+    ├── scripts/             # brand-lint, security-lint, seo-lint, brand-tools (contrast/mirror), lint-lib (shared helpers)
     └── src/
         ├── client/          # App.tsx (root), Main.css (design tokens), components/ui (primitives)
         ├── brand/           # palette.ts (GENERATED), brand.config.json
@@ -85,7 +85,7 @@ blank to them. Deep mechanics live in [`docs/seo.md`](docs/seo.md); the rules:
 
 - **Public marketing routes get `prerender: true`** in `main.wasp.ts` (never on an `authRequired` page). That's the only crawlable HTML.
 - **Every page renders `<PageMeta>`** (title/description/noindex); utility pages (`reset`, `verify`, 404) pass `noindex`.
-- **Exactly one `<h1>` per page** — `<Heading as="h1" size="…">`. `size` sets the look, `as` sets the level; a `size="h1"` without `as="h1"` renders an `<h2>`.
+- **Exactly one `<h1>` per page** — `<Heading as="h1" size="…">`. `size` sets the look, `as` sets the level; a `size="h1"` without `as="h1"` renders an `<h2>`. (Auth pages are the exception: Wasp's auth forms supply an `<h2>` title, so seo-lint exempts `AuthPageLayout` pages; a child that owns the heading can mark `// no-h1:`.)
 - **Head strings are JSX** — camelCase attributes (`httpEquiv`), self-close `<meta>`/`<link>`.
 - Head/manifest/`llms.txt` names mirror `APP_NAME`/`TAGLINE`; `SITE_URL` (`src/shared/app.ts`) feeds absolute URLs. `seo-lint` enforces all of it — don't "fix" the duplication by deleting a tag.
 
@@ -101,8 +101,9 @@ Bias is **no comment**. AI bloats code with narration; this repo doesn't ship it
 - **Never:** narrating comments, section-banner comments, JSDoc on internal
   functions with self-evident params, changelog comments ("added X"),
   commented-out code, or TODOs without a concrete action.
-- The lint markers (`// public-operation:`, `// no-input:`, `// external-api:`)
-  are functional annotations, not comments — always keep them.
+- The lint markers — `// public-operation:`, `// no-input:`, `// external-api:`,
+  `// json-ld:` (security-lint) and `// no-h1:` (seo-lint) — are functional
+  annotations, not comments; always keep them.
 - The template's own teaching comments (the `operations.ts` header, the Main.css
   `overflow-x` block) are deliberate constraint docs and stay. New feature code
   follows the strict rule.
@@ -129,7 +130,7 @@ Bias is **no comment**. AI bloats code with narration; this repo doesn't ship it
 
 - **`wasp compile`** validates the spec and regenerates the SDK. It is the config check.
 - Do **not** run `npx tsc -b` / `tsc` on the root `tsconfig.json` — the spec project pulls `src/` in without DOM libs and reports errors that aren't real. To check `src/` alone: **`npx tsc -p tsconfig.src.json`**.
-- **`npm run check`** = brand-lint + security-lint + seo-lint + contrast + palette-mirror sync. Run it before considering any UI or operation change done.
+- **`npm run check`** = brand-lint + security-lint + seo-lint + contrast + palette-mirror sync. Run it before considering any UI or operation change done. The same gate runs in CI ([`.github/workflows/check.yml`](.github/workflows/check.yml)) on every push — it needs no `npm install` because the lint scripts are dependency-free.
 - `wasp build` does **not** build the client bundle — `npx vite build` does. Both are needed to reproduce a ship.
 - Tests: default is **zero** — a test must earn its place (money/permission/gnarly-pure logic). `npm run test` (vitest) from `app/`; it's deliberately not in `npm run check`. See [`docs/testing.md`](docs/testing.md).
 
@@ -144,6 +145,10 @@ wasp compile                     # validate config + regenerate SDK
 npm run check                    # brand + security + seo + contrast gates
 npm run brand:mirror             # regenerate src/brand/palette.ts from Main.css
 ```
+
+For a visual check, launch the dev server through the `wasp-dev` config in
+[`.claude/launch.json`](.claude/launch.json) (the preview harness) rather than a
+raw `wasp start` in a shell — `wasp start` hangs when launched non-interactively.
 
 ## Deployment gotchas
 

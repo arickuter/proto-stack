@@ -15,15 +15,21 @@ import * as z from "zod";
  */
 
 // no-input:
-export const getNotes: GetNotes<void, Note[]> = async (_args, context) => {
+export const getNotes: GetNotes<void, Pick<Note, "id" | "text">[]> = async (
+  _args,
+  context,
+) => {
   if (!context.user) {
     throw new HttpError(401);
   }
 
+  // `select` the columns the screen renders, not whole rows — see
+  // docs/performance.md. Bounded (`take`) with a deterministic `orderBy`.
   return context.entities.Note.findMany({
     where: { userId: context.user.id },
     orderBy: { createdAt: "desc" },
     take: 50,
+    select: { id: true, text: true },
   });
 };
 

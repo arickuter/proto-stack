@@ -16,10 +16,6 @@ import "./Main.css";
 import NavBar from "./components/NavBar";
 import ErrorBoundary from "./components/ui/ErrorBoundary";
 
-/**
- * Root component wrapping every route. Provides the page chrome (nav) and an
- * error boundary around the routed content.
- */
 export default function App() {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">

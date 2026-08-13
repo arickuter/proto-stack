@@ -34,15 +34,17 @@ placeholder markup.
    the core loop; defer everything else.
 
 4. **Rename identity** so the prototype is itself, not "ProtoStack":
-   - `app({ name, title })` and the head `og:title` / `og:site_name` /
-     `description` strings in `app/main.wasp.ts`
+   - `app({ name, title })`, the head `og:title` / `og:site_name` / `description`
+     strings, and the `fromField` `EMAIL_FROM_NAME` fallback (the sender name on
+     verification/reset emails) in `app/main.wasp.ts`
    - `name` in `app/package.json`
    - `APP_NAME` / `TAGLINE` in `app/src/shared/app.ts`
    - `name` / `short_name` in `app/public/site.webmanifest`
    - the `# ` heading and blurb in `app/public/llms.txt`
    - the README H1
 
-   `npm run seo-lint` catches any spot you miss (it cross-checks all of these).
+   `npm run seo-lint` cross-checks most of these — but **not** the README H1 or
+   the `fromField` fallback, so eyeball those two.
 
 5. **Model data.** Edit `app/schema.prisma`, then `wasp db migrate-dev "<message>"`.
 

@@ -1,0 +1,22 @@
+name: check
+
+# The always-on gate: brand-lint + security-lint + seo-lint + contrast + palette
+# mirror sync (app/package.json `check`). The lint scripts are dependency-free
+# (node builtins only), so CI runs them with no `npm install` step.
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: npm run check
+        working-directory: app
+        run: npm run check

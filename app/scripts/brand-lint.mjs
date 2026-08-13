@@ -12,10 +12,19 @@
  * rules and stay on regardless of the palette.
  */
 
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
-import { walk, stripComments, Reporter, readConfig, lineOf, lineTextOf } from "./lint-lib.mjs";
+import {
+  walk,
+  stripComments,
+  Reporter,
+  readConfig,
+  lineOf,
+  lineTextOf,
+  splitThemeRegions,
+  extractOklchTokens,
+} from "./lint-lib.mjs";
 
 const APP = join(dirname(fileURLToPath(import.meta.url)), "..");
 const SRC = join(APP, "src");
@@ -79,9 +88,13 @@ for (const file of files) {
       (m, text) => /<(?:code|kbd|samp)\b|data-counter/.test(lineTextOf(text, m.index)));
   }
 
-  // 7. Anti-tell: shouty ALL-CAPS runs typed directly into copy.
-  r.scan(file, src, /\b[A-Z]{2,}(?:\s+[A-Z]{2,}){1,}\b/, "no-shouting",
-    (m) => `all-caps run "${m[0].trim()}" — write it in sentence case`);
+  // 7. Anti-tell: shouty ALL-CAPS runs typed directly into copy. Shares the
+  // `no-uppercase` allowlist so a page that genuinely needs adjacent caps (a
+  // product name, an acronym pair) has the same escape hatch as rule 5.
+  if (!inList(file, allowUppercase)) {
+    r.scan(file, src, /\b[A-Z]{2,}(?:\s+[A-Z]{2,}){1,}\b/, "no-shouting",
+      (m) => `all-caps run "${m[0].trim()}" — write it in sentence case`);
+  }
 
   // 8. One radius. `rounded-control` is the only radius utility (`rounded-full`
   // stays for genuine circles). Arbitrary `rounded-[…]`, bare `rounded`, and
@@ -105,14 +118,14 @@ for (const file of files) {
   }
 }
 
-// 8. brand.config self-consistency: `flat` is the shorthand the docs use, so it
+// 11. brand.config self-consistency: `flat` is the shorthand the docs use, so it
 // must not contradict the depth flags it summarises.
 if (cfg.flat === true && (cfg.shadows === true || cfg.gradients === true)) {
   r.add(join(APP, "src/brand/brand.config.json"), 1, "config-flat-drift",
     "brand.config flat:true but shadows/gradients are enabled — a flat brand has neither");
 }
 
-// 9. brand.config ↔ Main.css consistency + token canon.
+// 12. brand.config ↔ Main.css consistency + token canon.
 const css = readFileSync(MAIN_CSS, "utf8");
 
 // shadows flag must agree with the `--shadow-*: initial` kill line.
@@ -148,10 +161,9 @@ const REQUIRED = [
   "secondary", "secondary-foreground", "secondary-hover", "secondary-active",
   "muted", "muted-foreground", "border", "border-hover", "ring",
 ];
-const darkIdx = css.search(/@media\s*\(prefers-color-scheme:\s*dark\)/);
-const tokensIn = (region) => new Set([...region.matchAll(/--([\w-]+):\s*oklch\(/g)].map((m) => m[1]));
-const lightTokens = tokensIn(css.slice(0, darkIdx));
-const darkTokens = tokensIn(css.slice(darkIdx));
+const { light: lightRegion, dark: darkRegion } = splitThemeRegions(css);
+const lightTokens = new Set(Object.keys(extractOklchTokens(lightRegion)));
+const darkTokens = new Set(Object.keys(extractOklchTokens(darkRegion)));
 for (const t of REQUIRED) {
   if (!lightTokens.has(t)) r.add(MAIN_CSS, 1, "token-canon", `required token --${t} missing from :root (light)`);
   if (!darkTokens.has(t)) r.add(MAIN_CSS, 1, "token-canon", `required token --${t} missing from the dark block`);
@@ -184,6 +196,38 @@ for (const t of lightTokens) {
   if (!utility.test(usageHaystack) && !usageHaystack.includes(`var(--${t})`)) {
     r.add(MAIN_CSS, 1, "token-orphan",
       `--${t} is defined but never consumed — use it, delete it, or add it to reservedTokens`);
+  }
+}
+
+// 13. One radius token. Besides the `--radius-*: initial` kill line (which
+// clears Tailwind's stock scale), exactly one concrete `--radius-<name>` may be
+// defined. A second radius (a larger card radius, say) reads as a different
+// intention — the design keeps one. See docs/design-principles.md ("Radius is
+// personality"). The kill line's `*` isn't a word char, so it never matches.
+const radiusTokens = [...css.matchAll(/--radius-([\w-]+):\s*(?!initial)[^;]/g)].map((m) => m[1]);
+if (radiusTokens.length !== 1) {
+  r.add(MAIN_CSS, lineOf(css, Math.max(0, css.indexOf("--radius-control"))), "single-radius",
+    `expected exactly one --radius-<name> token, found ${radiusTokens.length}${radiusTokens.length ? ` (${radiusTokens.join(", ")})` : ""} — the design uses one radius (docs/design-principles.md)`);
+}
+
+// 14. Public-asset colours must be palette colours. favicon.svg and
+// site.webmanifest can't read a CSS variable, so they hardcode hex — every such
+// hex must exist in the palette.ts mirror. This is the check that would have
+// caught the shipped drift (manifest #f7fafc vs the palette's #f5f9fc). Fix a
+// failure by using a palette value, not by editing palette.ts (it's generated).
+const paletteHex = new Set(
+  [...readFileSync(join(APP, "src/brand/palette.ts"), "utf8").matchAll(/#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b/g)]
+    .map((m) => m[0].toLowerCase()),
+);
+for (const asset of ["public/site.webmanifest", "public/favicon.svg"]) {
+  const p = join(APP, asset);
+  if (!existsSync(p)) continue;
+  const text = readFileSync(p, "utf8");
+  for (const m of text.matchAll(/#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b/g)) {
+    if (!paletteHex.has(m[0].toLowerCase())) {
+      r.add(p, lineOf(text, m.index), "public-asset-palette",
+        `hex ${m[0]} is not a palette colour — use a value from src/brand/palette.ts (regenerate with npm run brand:mirror after a token change)`);
+    }
   }
 }
 

@@ -46,8 +46,9 @@ Run `claude` in the repo and use the skills:
 - **Design system**: one token file (`app/src/client/Main.css`), hand-rolled
   primitives, a flat "paper" default look, and a linter that fails the build on
   off-brand colour. Rebrand via `/brand`.
-- **Guardrails**: `npm run check` runs brand-lint, security-lint, and a WCAG
-  contrast check.
+- **Guardrails**: `npm run check` runs brand-lint, security-lint, seo-lint, a
+  WCAG contrast check, and a palette-mirror sync check. The same gate runs in
+  CI (`.github/workflows/check.yml`) on every push.
 
 ## Prerequisites
 

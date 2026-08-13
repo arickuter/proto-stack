@@ -27,16 +27,23 @@ logic. If you think you need to, you're probably solving it at the wrong layer.
 - **Where it's enforced:** operations must live in a file named `operations.ts`,
   `queries.ts`, or `actions.ts` — security-lint only checks those. An operation
   hidden in a differently-named file gets **no** auth/input enforcement.
+- **What the linter actually proves:** that a `context.user` check *exists*
+  somewhere in the operation and its input is parsed — **not** that the check is
+  the *first* statement, nor that it's the *right* check. Placement (auth before
+  any work) and correctness are reviewed, not linted; the "first statement" rule
+  is a convention you hold, not something a regex can see.
 
 ## The lint markers
 
-Three comment markers tell security-lint an omission is intentional:
+Four comment markers tell security-lint an omission is intentional:
 `// public-operation:` (an operation with no auth check), `// no-input:` (an
-operation that takes no args), and `// external-api:` (a deliberate client-side
-call to a keyless public API). Each must sit on the line **directly above** the
-code it excuses (the linter looks back a few lines only) — a marker parked at the
-top of the file doesn't count. Use them to state intent, not to silence a real
-finding.
+operation that takes no args), `// external-api:` (a deliberate client-side call
+to a keyless public API), and `// json-ld:` (the one sanctioned
+`dangerouslySetInnerHTML` — a structured-data script, see [`seo.md`](seo.md)).
+Each must sit on the line **directly above** the code it excuses (the linter
+looks back a few lines only) — a marker parked at the top of the file doesn't
+count. Use them to state intent, not to silence a real finding. (seo-lint adds a
+fifth, `// no-h1:`, documented in [`seo.md`](seo.md).)
 
 ## Scope every read and write to the current user (IDOR)
 

@@ -136,7 +136,11 @@ On the landing page and any content route:
   "powerful, seamless platform." Specifics get cited; superlatives get skipped.
 - **One `<h1>`, a real heading outline.** Sections in `<h2>`, sub-points in `<h3>`;
   pick the level by outline position, not size (`<Heading as="h1" size="…">`).
-  seo-lint `heading-h1-as` / `page-h1` enforce this.
+  seo-lint `heading-h1-as` / `page-h1` enforce this. **The auth pages are the
+  exception:** Wasp's own `LoginForm` / `SignupForm` / etc. render their title as
+  an `<h2>`, so those pages carry no `<h1>` — seo-lint exempts any page that uses
+  `AuthPageLayout`. A different page whose heading lives in a child can opt out
+  the same way with a `// no-h1:` marker (the `page-h1` escape hatch).
 - **Semantic landmarks** — `<main id="main">`, `<header>`/`<nav>`, `<footer>`,
   skip link — are already the template default; keep them.
 - The design anti-tells still apply: sentence case, no mono-caps eyebrows, no

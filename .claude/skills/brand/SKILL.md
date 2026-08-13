@@ -57,9 +57,10 @@ A brief: app name, audience, 2–3 vibe adjectives, and a colour direction (or
 
 7. **Favicon, manifest & og-image:** update `app/public/favicon.svg` (a simple
    letterform on the new palette) and the `background_color` / `theme_color` in
-   `site.webmanifest` from the new `palette.ts` values. Also update the
-   `theme-color` meta in `main.wasp.ts` head to match `theme_color` (seo-lint
-   checks the two agree). Optionally generate `app/public/og-image.png` — a
+   `site.webmanifest` from the new `palette.ts` values. Every hex in those two
+   files must be a `palette.ts` value — brand-lint's `public-asset-palette` rule
+   fails the build otherwise. Also update the `theme-color` meta in
+   `main.wasp.ts` head to match `theme_color` (seo-lint checks the two agree). Optionally generate `app/public/og-image.png` — a
    1200×630 wordmark on the brand background per [`docs/seo.md`](../../../docs/seo.md);
    if you create it, tell the user `/ship` wires it into the head.
 
@@ -75,7 +76,10 @@ A brief: app name, audience, 2–3 vibe adjectives, and a colour direction (or
   invert (lift the accent's lightness so links hold AA).
 - **No hex outside `palette.ts`.** One accent hue. Sentence case, no mono-caps
   labels — the anti-tell rules stay on regardless of brand.
-- **One radius, real tints, hover toward ink.** Don't add a second radius token,
-  don't reach for `bg-*/NN` alpha composites, and keep `*-hover`/`*-active`
-  darker on light (lighter on dark) — brand-lint fails all three.
+- **One radius, real tints, hover toward ink.** Don't add a second radius token
+  (brand-lint `single-radius`), don't reach for `bg-*/NN` alpha composites
+  (brand-lint `no-alpha-composite`), and keep `*-hover` a step toward ink —
+  darker on light, lighter on dark (`npm run contrast` fails a hover that steps
+  toward the page). `*-active` follows the same intent but isn't linted (the ink
+  end saturates at white on dark). `npm run check` covers all of this.
 - Don't touch app logic or operations — that's `/prototype`.

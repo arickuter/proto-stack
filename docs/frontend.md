@@ -67,8 +67,8 @@ this is where generated code accumulates cruft:
   fixed.
 - A comment must say what the code **can't**: a non-obvious *why*, an external
   constraint or workaround (with a link), a consequence warning.
-- The lint markers (`// public-operation:`, `// no-input:`, `// external-api:`)
-  are functional annotations, always allowed.
+- The lint markers (`// public-operation:`, `// no-input:`, `// external-api:`,
+  `// json-ld:`, `// no-h1:`) are functional annotations, always allowed.
 
 ## Responsive
 

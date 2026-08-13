@@ -59,21 +59,27 @@ other utility. Component classes that must win over utilities on purpose (e.g.
 `.surface-inverted` recolouring nested headings) stay unlayered by design.
 
 `brand-lint` enforces these, plus "no raw colours / hex", "no alpha composites",
-"no font-family literals", and radius/mono discipline. It checks a **token
-canon**: 32 required tokens (the ones above) must be defined in **both** the
-light `:root` and the dark block — a token in one theme but not the other fails
-the build — and every colour token must be **consumed** somewhere (`token-orphan`:
-a defined-but-unused colour token fails, unless listed in `reservedTokens`). It
-also fails on `no-shouting` (adjacent ALL-CAPS words). `npm run check`
-additionally verifies `palette.ts` is in sync with the tokens (`mirror --check`),
-so a token edit can't ship with a stale hex mirror.
+"no font-family literals", and radius/mono discipline (`single-radius`: exactly
+one concrete `--radius-*` token). It checks a **token canon**: 32 required tokens
+(the ones above) must be defined in **both** the light `:root` and the dark block
+— a token in one theme but not the other fails the build — and every colour token
+must be **consumed** somewhere (`token-orphan`: a defined-but-unused colour token
+fails, unless listed in `reservedTokens`). It also fails on `no-shouting`
+(adjacent ALL-CAPS words, minus the `allowUppercase` list) and on a
+favicon/manifest hex that isn't a palette value (`public-asset-palette`).
+`npm run contrast` additionally checks each `*-hover` steps toward ink rather
+than toward the page, and `npm run check` verifies `palette.ts` is in sync with
+the tokens (`mirror --check`) so a token edit can't ship with a stale hex mirror.
 
 ## Non-CSS surfaces: palette.ts
 
 [`app/src/brand/palette.ts`](../app/src/brand/palette.ts) is the sRGB hex mirror
 of every token, for surfaces that can't read a CSS variable (favicon/manifest
 colours, OG images, email). It is **generated** — run `npm run brand:mirror`
-after changing tokens; never hand-edit it. `brand-lint` allows hex only there.
+after changing tokens; never hand-edit it. `brand-lint` allows hex only there,
+and its `public-asset-palette` rule fails the build if a hex in `favicon.svg` or
+`site.webmanifest` isn't one of these mirrored values — the check that catches a
+tab or install-icon colour drifting off the palette.
 
 ## Primitives
 

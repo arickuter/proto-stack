@@ -18,6 +18,7 @@
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { splitThemeRegions, extractOklchTokens } from "./lint-lib.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const APP = join(HERE, "..");
@@ -94,29 +95,21 @@ function parseOklch(value) {
   return { L, C, H };
 }
 
-function extractTokens(region) {
-  const tokens = {};
-  const re = /--([\w-]+):\s*(oklch\([^)]*\))\s*;/g;
-  let m;
-  while ((m = re.exec(region))) tokens[m[1]] = parseOklch(m[2]);
-  return tokens;
+// Parse a region's `--name: oklch(...)` declarations into name -> {L, C, H}.
+// The raw extraction + light/dark split live in lint-lib.mjs so brand-lint and
+// this file never disagree about what the tokens are; only the numeric parse is
+// local here (brand-lint needs names, not values).
+function parseRegion(region) {
+  const out = {};
+  for (const [name, value] of Object.entries(extractOklchTokens(region))) {
+    out[name] = parseOklch(value);
+  }
+  return out;
 }
 
-/**
- * Splits Main.css into the light `:root` region and the dark
- * `@media (prefers-color-scheme: dark)` region and extracts oklch tokens from
- * each. Non-oklch declarations (`@theme` var() refs, radii, utilities) are
- * ignored by the regex.
- */
 function parseThemes() {
-  const css = readFileSync(MAIN_CSS, "utf8");
-  const darkIdx = css.search(/@media\s*\(prefers-color-scheme:\s*dark\)/);
-  if (darkIdx === -1) {
-    throw new Error("Main.css: could not find the dark @media block.");
-  }
-  const light = extractTokens(css.slice(0, darkIdx));
-  const dark = extractTokens(css.slice(darkIdx));
-  return { light, dark };
+  const { light, dark } = splitThemeRegions(readFileSync(MAIN_CSS, "utf8"));
+  return { light: parseRegion(light), dark: parseRegion(dark) };
 }
 
 // ---------------------------------------------------------------------------
@@ -154,6 +147,22 @@ const PAIRS = [
   ["accent", "surface-inverted", 3.0, "decorative mark on dark band"],
 ];
 
+// Hover state tokens must step AWAY from the page — darker on light, lighter on
+// dark — so a control never washes toward the background on hover. This is the
+// direction rule docs/design-principles.md states; enforcing it here stops a
+// rebrand from setting, say, a `--foreground-hover` lighter than `--foreground`
+// on light. Each pair is [base token, its hover token, label].
+//
+// Only HOVER is directional. `*-active` is a pressed state, and on dark the ink
+// end saturates at white (`--foreground-hover` is already oklch(100%)), so the
+// pressed value must dip to stay perceptible — a strict active rule would flag
+// that intentional cap. Active direction is a judgment call, reviewed not linted.
+const HOVER_PAIRS = [
+  ["foreground", "foreground-hover", "filled-button hover"],
+  ["secondary", "secondary-hover", "secondary-button hover"],
+  ["border", "border-hover", "ghost-button hover border"],
+];
+
 function runContrast() {
   const themes = parseThemes();
   let failures = 0;
@@ -178,6 +187,28 @@ function runContrast() {
         `  ${mark}  ${ratio.toFixed(2).padStart(5)} : ${min.toFixed(1)}  ${fg} / ${bg}  (${label})`,
       );
     }
+
+    // Hover direction: on light, toward ink is a LOWER lightness; on dark it is
+    // HIGHER. The inverted band is dark in both themes, so its hover always lifts.
+    const towardInk = themeName === "light" ? (s, b) => s < b : (s, b) => s > b;
+    const pct = (L) => `${(L * 100).toFixed(0)}%`;
+    const directionPairs = [
+      ...HOVER_PAIRS.map(([base, hover, label]) => [base, hover, label, towardInk]),
+      ["surface-inverted-foreground", "surface-inverted-foreground-hover",
+        "dark-band hover", (s, b) => s >= b],
+    ];
+    for (const [base, state, label, ok] of directionPairs) {
+      const b = tokens[base];
+      const s = tokens[state];
+      if (!b || !s) continue; // a missing token is already a contrast MISSING failure
+      if (!ok(s.L, b.L)) {
+        failures++;
+        console.log(
+          `  FAIL  direction  --${state} (${pct(s.L)}) must step toward ink from --${base} (${pct(b.L)})  (${label})`,
+        );
+      }
+    }
+
     for (const [name, t] of Object.entries(tokens)) {
       if (!isInGamut(t.L, t.C, t.H)) {
         console.log(`  GAMUT  --${name} is outside sRGB; it will be clamped when displayed.`);
@@ -188,10 +219,10 @@ function runContrast() {
 
   console.log("");
   if (failures > 0) {
-    console.error(`✗ contrast: ${failures} pair(s) below threshold.`);
+    console.error(`✗ contrast: ${failures} check(s) failed (contrast ratio or hover direction).`);
     process.exit(1);
   }
-  console.log(`✓ contrast: all pairs pass AA${gamutWarnings ? ` (${gamutWarnings} gamut warning(s))` : ""}.`);
+  console.log(`✓ contrast: all pairs pass AA and hovers step toward ink${gamutWarnings ? ` (${gamutWarnings} gamut warning(s))` : ""}.`);
 }
 
 // ---------------------------------------------------------------------------
