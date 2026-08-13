@@ -14,6 +14,7 @@ import {
   Section,
   Skeleton,
 } from "../client/components/ui";
+import PageMeta from "../client/components/PageMeta";
 
 /*
  * The query exemplar: getNotes rendered through its three states — loading
@@ -47,9 +48,10 @@ export default function DashboardPage({ user }: { user: AuthUser }) {
 
   return (
     <main id="main" className="flex-1">
+      <PageMeta title="Dashboard" />
       <Section density="compact">
         <Container width="narrow">
-          <Heading size="h1">Welcome, {name}</Heading>
+          <Heading as="h1" size="h1">Welcome, {name}</Heading>
           <p className="mt-3 text-muted-foreground">
             This is your app's home once someone signs in.
           </p>

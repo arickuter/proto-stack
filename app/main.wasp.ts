@@ -82,11 +82,25 @@ export default app({
   name: "ProtoStack",
   title: "ProtoStack",
   wasp: { version: "^0.25.0" },
+  // Global <head>. Wasp renders each string as JSX, so attributes MUST be
+  // camelCased (`httpEquiv`, not `http-equiv`) or they are silently dropped.
+  // The description/og:* literals mirror APP_NAME/TAGLINE in src/shared/app.ts
+  // (main.wasp.ts can't import from src/) — seo-lint keeps them in sync.
+  // Per-page titles come from <PageMeta>; absolute-URL tags live on the page.
+  // See docs/seo.md.
   head: [
     "<meta name='viewport' content='width=device-width, initial-scale=1' />",
     "<link rel='icon' href='/favicon.svg' type='image/svg+xml' />",
+    "<link rel='manifest' href='/site.webmanifest' />",
+    "<meta name='theme-color' content='#f7fafc' />",
+    "<meta name='description' content='Validate the idea before you build the product.' />",
+    "<meta property='og:type' content='website' />",
+    "<meta property='og:site_name' content='ProtoStack' />",
+    "<meta property='og:title' content='ProtoStack' />",
+    "<meta property='og:description' content='Validate the idea before you build the product.' />",
+    "<meta name='twitter:card' content='summary' />",
     // CSP hardening: force any http subresource to https in production.
-    "<meta http-equiv='Content-Security-Policy' content='upgrade-insecure-requests' />",
+    "<meta httpEquiv='Content-Security-Policy' content='upgrade-insecure-requests' />",
     // NOTE: any <script> added here MUST use `async`, not `defer` (React
     // hydration bug). See docs/deployment.md.
   ],
@@ -119,7 +133,11 @@ export default app({
     rootComponent: App,
   },
   spec: [
-    route("LandingRoute", "/", page(LandingPage)),
+    // Prerendered to static HTML at build time: AI crawlers (GPTBot,
+    // ClaudeBot, PerplexityBot) don't run JS, so the SPA shell is invisible to
+    // them without this. Only public, non-authRequired routes qualify. See
+    // docs/seo.md.
+    route("LandingRoute", "/", page(LandingPage), { prerender: true }),
     route("LoginRoute", "/login", page(Login)),
     route("SignupRoute", "/signup", page(Signup)),
     route(

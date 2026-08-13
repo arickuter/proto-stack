@@ -55,9 +55,13 @@ A brief: app name, audience, 2–3 vibe adjectives, and a colour direction (or
    didn't wire up fails; use it, drop it, or add it to `reservedTokens`). Do not
    eyeball contrast.
 
-7. **Favicon & manifest:** update `app/public/favicon.svg` (a simple letterform
-   on the new palette) and `site.webmanifest` theme colours from the new
-   `palette.ts` values.
+7. **Favicon, manifest & og-image:** update `app/public/favicon.svg` (a simple
+   letterform on the new palette) and the `background_color` / `theme_color` in
+   `site.webmanifest` from the new `palette.ts` values. Also update the
+   `theme-color` meta in `main.wasp.ts` head to match `theme_color` (seo-lint
+   checks the two agree). Optionally generate `app/public/og-image.png` — a
+   1200×630 wordmark on the brand background per [`docs/seo.md`](../../../docs/seo.md);
+   if you create it, tell the user `/ship` wires it into the head.
 
 8. **Summarize** old→new (accent, fonts, radius) and suggest a visual pass with
    `wasp start`.

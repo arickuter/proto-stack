@@ -11,6 +11,7 @@ import {
   Input,
   Section,
 } from "../client/components/ui";
+import PageMeta from "../client/components/PageMeta";
 
 /*
  * The reference feature: a tiny form calling the updateDisplayName action.
@@ -37,9 +38,10 @@ export default function AccountPage({ user }: { user: AuthUser }) {
 
   return (
     <main id="main" className="flex-1">
+      <PageMeta title="Account" />
       <Section density="compact">
         <Container width="narrow">
-          <Heading size="h1">Account</Heading>
+          <Heading as="h1" size="h1">Account</Heading>
           <p className="mt-3 text-muted-foreground">
             Signed in as {user.email ?? user.username}.
           </p>

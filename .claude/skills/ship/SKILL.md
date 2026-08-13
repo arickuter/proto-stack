@@ -40,7 +40,17 @@ Read [`docs/deployment.md`](../../../docs/deployment.md),
 4. **Deploy hygiene:** confirm `app/public/Staticfile` exists (never delete it)
    and any `head` `<script>` is `async`.
 
-5. **Deploy** (confirm with the user first — this is outward-facing):
+5. **SEO gate** (the checklist in [`docs/seo.md`](../../../docs/seo.md)):
+   - Set `SITE_URL` in `app/src/shared/app.ts` to the production origin (no
+     trailing slash).
+   - Uncomment the `Sitemap:` line in `public/robots.txt` and replace
+     `__SITE_URL__` there and in `public/sitemap.xml` with that origin.
+   - Review `public/llms.txt` copy against the shipped product.
+   - If `public/og-image.png` exists, add an `og:image` (absolute URL) to the
+     `main.wasp.ts` head and bump `twitter:card` to `summary_large_image`.
+   - `npm run seo-lint` — `site-url-propagation` confirms the three stay in sync.
+
+6. **Deploy** (confirm with the user first — this is outward-facing):
    ```bash
    wasp deploy railway launch <app-name>    # first time
    # wasp deploy railway deploy <app-name>  # subsequent
@@ -48,9 +58,12 @@ Read [`docs/deployment.md`](../../../docs/deployment.md),
    Set the server-side env vars in the Railway project. Railway provisions
    Postgres and `DATABASE_URL`.
 
-6. **Smoke test** the live site: sign up with a real email (verification arrives),
+7. **Smoke test** the live site: sign up with a real email (verification arrives),
    log in, open a deep link to a routed page (SPA fallback works), hit a 404, and
-   confirm an unauthenticated call to an operation is rejected.
+   confirm an unauthenticated call to an operation is rejected. Then the SEO proof:
+   `curl` `/robots.txt` and `/sitemap.xml` (200, real URLs), and `curl` the landing
+   URL and confirm the raw HTML contains the `<h1>` and description **before** any
+   JS runs — that's what an AI crawler sees.
 
 ## Guardrails
 

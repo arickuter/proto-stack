@@ -36,10 +36,15 @@ in the Google console.
 ## Gotchas
 
 - **`app/public/Staticfile` is required and must not be deleted.** Wasp ships
-  `200.html` (not `index.html`); Railway/Railpack needs the Staticfile
+  `200.html` as the SPA fallback; Railway/Railpack needs the Staticfile
   (`root: .`, `index_fallback: true`) to detect the build and fall back
   correctly for SPA routes. Without it, deep links 404.
   (Upstream: wasp-lang/wasp#4045.)
+- **Prerendering composes with this.** A route with `prerender: true` (see
+  [`seo.md`](seo.md)) emits its own static HTML at its path — the landing route
+  `/` builds a real `index.html` with full content — while every other route
+  still falls through to `200.html`. `index_fallback` and prerendering work
+  together; don't disable one for the other.
 - **Server and client deploy independently.** If one fails, fix and redeploy —
   state isn't corrupted.
 - `wasp build` builds the server; the client is built by `npx vite build`. The

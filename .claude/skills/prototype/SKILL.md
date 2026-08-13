@@ -34,10 +34,15 @@ placeholder markup.
    the core loop; defer everything else.
 
 4. **Rename identity** so the prototype is itself, not "ProtoStack":
-   - `app({ name, title })` in `app/main.wasp.ts`
+   - `app({ name, title })` and the head `og:title` / `og:site_name` /
+     `description` strings in `app/main.wasp.ts`
    - `name` in `app/package.json`
    - `APP_NAME` / `TAGLINE` in `app/src/shared/app.ts`
+   - `name` / `short_name` in `app/public/site.webmanifest`
+   - the `# ` heading and blurb in `app/public/llms.txt`
    - the README H1
+
+   `npm run seo-lint` catches any spot you miss (it cross-checks all of these).
 
 5. **Model data.** Edit `app/schema.prisma`, then `wasp db migrate-dev "<message>"`.
 
@@ -47,8 +52,10 @@ placeholder markup.
    `app/src/client/components/ui` — tokens only.
 
 7. **Rewrite the landing copy** for the idea (in `LandingPage.tsx`), following the
-   voice rules in [`docs/design-principles.md`](../../../docs/design-principles.md):
-   heading-first sections, sentence case, no generated-page tells.
+   voice rules in [`docs/design-principles.md`](../../../docs/design-principles.md)
+   and the GEO guidance in [`docs/seo.md`](../../../docs/seo.md): heading-first
+   sections, an answer-first hero (the first sentence states what it does and for
+   whom), factual density over adjectives, one `<h1>`, no generated-page tells.
 
 8. **Verify.** `wasp compile`, remind the user to restart `wasp start` (spec/schema
    changed), then `npm run check`. Fix anything it flags.
@@ -65,6 +72,8 @@ placeholder markup.
   bound list queries with `take` + `orderBy`. See [`docs/performance.md`](../../../docs/performance.md).
 - **Barely any comments.** Default to none; a comment must explain a non-obvious
   *why*, never narrate the code. See the Comments rules in [`AGENTS.md`](../../../AGENTS.md).
+- **Every page renders `<PageMeta>`**; a new **public** content route gets
+  `prerender: true` and a `<url>` in `public/sitemap.xml`. See [`docs/seo.md`](../../../docs/seo.md). seo-lint enforces this.
 - **Never touch design tokens** — that's `/brand`. Never edit `src/brand/palette.ts`.
 - No payments. If the idea needs them, point at [`docs/payments-later.md`](../../../docs/payments-later.md).
 - Want real Google login in dev? Follow [`docs/providers.md`](../../../docs/providers.md#google-oauth) — don't improvise console steps.

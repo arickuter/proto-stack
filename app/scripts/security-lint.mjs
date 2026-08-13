@@ -47,9 +47,24 @@ for (const file of files) {
   const relPath = rel(file);
   const isClient = relPath.startsWith("src/client/") || file.endsWith(".tsx");
 
-  // 1. No HTML injection sink.
-  r.scan(file, src, /dangerouslySetInnerHTML/, "no-dangerous-html",
-    "dangerouslySetInnerHTML — render user content with <ReactMarkdown> instead");
+  // 1. No HTML injection sink. The one allowed use is a JSON-LD <script> whose
+  // payload is build-time constants — the standard way to emit structured data
+  // in React (see docs/seo.md). It must be a `type="application/ld+json"` script
+  // AND carry a `// json-ld:` marker so the choice is deliberate and greppable.
+  {
+    const rx = /dangerouslySetInnerHTML/g;
+    let m;
+    while ((m = rx.exec(raw))) {
+      const around = raw.slice(Math.max(0, m.index - 400), m.index);
+      const exempt =
+        /type=['"]application\/ld\+json['"]/.test(around) &&
+        around.includes("json-ld:");
+      if (!exempt) {
+        r.add(file, lineOf(raw, m.index), "no-dangerous-html",
+          "dangerouslySetInnerHTML — render user content with <ReactMarkdown>; only a JSON-LD script marked // json-ld: may use it");
+      }
+    }
+  }
 
   // 2. No hardcoded secrets anywhere in src/.
   for (const [re, what] of SECRET_PATTERNS) {

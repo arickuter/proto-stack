@@ -1,6 +1,7 @@
 import { Zap, ShieldCheck, Paintbrush } from "lucide-react";
-import { APP_NAME, TAGLINE } from "../shared/app";
+import { APP_NAME, TAGLINE, SITE_URL } from "../shared/app";
 import { Button, Card, Container, Heading, Section } from "../client/components/ui";
+import PageMeta from "../client/components/PageMeta";
 
 /*
  * The landing page doubles as the living style reference for the design
@@ -28,8 +29,31 @@ const features = [
 ];
 
 export default function LandingPage() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: APP_NAME,
+    description: TAGLINE,
+    ...(SITE_URL ? { url: SITE_URL } : {}),
+  };
   return (
     <main id="main" className="flex-1">
+      <PageMeta />
+      {SITE_URL && (
+        <>
+          <link rel="canonical" href={`${SITE_URL}/`} />
+          <meta property="og:url" content={`${SITE_URL}/`} />
+        </>
+      )}
+      {/* json-ld: structured data for search + AI engines. Payload is build-time
+          constants, not user input; `<`-escaped so the JSON is byte-valid in the
+          prerendered HTML a non-JS crawler reads. See docs/seo.md. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
       <Section>
         <Container width="narrow">
           <div className="space-y-6 text-center">

@@ -1,0 +1,9 @@
+# All crawlers welcome, including AI crawlers (GPTBot, ClaudeBot, PerplexityBot,
+# Google-Extended). A prototype exists to be found — narrow this only if you
+# have a reason to. See docs/seo.md.
+User-agent: *
+Allow: /
+
+# /ship replaces __SITE_URL__ with the real origin and uncomments the line.
+# A Sitemap: directive must be an absolute URL, so it stays commented until then.
+# Sitemap: __SITE_URL__/sitemap.xml

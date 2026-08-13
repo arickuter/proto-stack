@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Public marketing routes only (not auth/utility pages). /ship substitutes
+     __SITE_URL__ with the real origin. Add a <url> when you add a public,
+     prerendered content route. See docs/seo.md. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>__SITE_URL__/</loc>
+  </url>
+</urlset>

@@ -7,10 +7,11 @@
   "scripts": {
     "brand-lint": "node scripts/brand-lint.mjs",
     "security-lint": "node scripts/security-lint.mjs",
+    "seo-lint": "node scripts/seo-lint.mjs",
     "contrast": "node scripts/brand-tools.mjs contrast",
     "brand:mirror": "node scripts/brand-tools.mjs mirror",
     "mirror:check": "node scripts/brand-tools.mjs mirror --check",
-    "check": "npm run brand-lint && npm run security-lint && npm run contrast && npm run mirror:check",
+    "check": "npm run brand-lint && npm run security-lint && npm run seo-lint && npm run contrast && npm run mirror:check",
     "test": "vitest run"
   },
   "workspaces": [

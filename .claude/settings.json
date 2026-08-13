@@ -12,6 +12,7 @@
       "Bash(npm install:*)",
       "Bash(npm run brand-lint)",
       "Bash(npm run security-lint)",
+      "Bash(npm run seo-lint)",
       "Bash(npm run contrast)",
       "Bash(npm run brand:mirror)",
       "Bash(npm run check)",

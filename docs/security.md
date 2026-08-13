@@ -103,8 +103,10 @@ finding.
 - [ ] `npm audit --omit=dev` is clean or every finding is triaged. (Wasp pulls
       in some deprecated auth deps; assess, don't panic.)
 - [ ] `head` `<script>`s are minimal and `async` (not `defer`).
-- [ ] CSP `upgrade-insecure-requests` is present (it's in `main.wasp.ts` head).
-      For a real CSP, prefer a host response header over the meta tag.
+- [ ] CSP `upgrade-insecure-requests` is present in `main.wasp.ts` head. It must
+      use `httpEquiv` (camelCase — head strings are JSX; `http-equiv` is silently
+      dropped); seo-lint now checks this. For a real CSP, prefer a host response
+      header over the meta tag.
 - [ ] Response headers reviewed on the host: `X-Content-Type-Options: nosniff`,
       a sensible `Referrer-Policy`.
 - [ ] Rate limiting: fine to skip at validation scale. When traffic justifies

@@ -1,0 +1,16 @@
+# ProtoStack
+
+> Validate the idea before you build the product.
+
+ProtoStack is a rapid-prototyping template for turning a product idea into a
+demoable walking skeleton — auth, database, and a flat design system wired up,
+so a new idea starts at the interesting part.
+
+## Pages
+
+- [Home](/): what ProtoStack is and how to get started.
+
+## Notes
+
+- Google Search does not read this file; Anthropic and OpenAI agent workflows do.
+  It's cheap to keep accurate — /prototype rewrites it per idea. See docs/seo.md.
