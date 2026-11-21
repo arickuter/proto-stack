@@ -49,3 +49,8 @@ in the Google console.
   state isn't corrupted.
 - `wasp build` builds the server; the client is built by `npx vite build`. The
   Railway flow handles both, but know the split when reproducing a build.
+- **`app/Dockerfile` patches the server's Node binary.** Wasp's generated image
+  pins its minimum Node (24.22.1 as of 0.26.1); the override swaps in the patched
+  release. Bump its tag together with `.nvmrc`.
+- **Health checks go to `/up`.** The 0.26 server doesn't answer `GET /` in
+  production.

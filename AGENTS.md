@@ -155,6 +155,8 @@ raw `wasp start` in a shell — `wasp start` hangs when launched non-interactive
 - **`app/public/Staticfile` is required** — do not delete. Railway/Railpack needs it (`root: .`, `index_fallback: true`) to serve SPA routes. See [`docs/deployment.md`](docs/deployment.md).
 - `<script>` tags in the `head` array must use `async`, not `defer` (React hydration).
 - `wasp build` refuses the `Dummy` email provider — that's the intended gate. Set a real provider before shipping (the `/ship` skill walks this).
+- **`app/Dockerfile` patches production Node.** Wasp appends it to the generated Dockerfile, which pins `node:24.22.1` as of Wasp 0.26.1. It copies in a newer Node binary; bump its tag with `.nvmrc` on Node security releases. Copy only the binary, not npm (see the comment there).
+- **The server's liveness path is `/up`.** Since Wasp 0.26 the production server no longer answers `GET /`, so point any Railway health check at `/up`.
 
 ## Skills
 
