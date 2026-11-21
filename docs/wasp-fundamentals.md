@@ -120,6 +120,7 @@ regenerate types.
 - `.env.server` change → restart `wasp start`.
 - Ran `wasp clean` or nuked `node_modules` → `wasp install` to regenerate
   `@wasp.sh/spec`.
-- `wasp build` builds the server only; `npx vite build` builds the client.
+- `wasp build` builds the server only; `npx vite build` builds the client and
+  needs `REACT_APP_API_URL` set (Wasp 0.26+).
 - `head` `<script>` tags must be `async`, not `defer`.
 - `wasp build` refuses the `Dummy` email provider (the intended prod gate).

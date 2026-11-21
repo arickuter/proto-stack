@@ -6,7 +6,7 @@ For deep Wasp mechanics (spec, operations, auth, imports, dev loop) read [`docs/
 
 ## Project
 
-**proto-stack** — a template for validating product ideas fast. Wasp 0.25 (TypeScript Spec, `main.wasp.ts`), Postgres, a flat "paper" design system, and three skills (`/prototype`, `/brand`, `/ship`). The goal is speed to a demoable prototype, spending nothing on external services until an idea graduates.
+**proto-stack** — a template for validating product ideas fast. Wasp 0.26 (TypeScript Spec, `main.wasp.ts`), Postgres, a flat "paper" design system, and three skills (`/prototype`, `/brand`, `/ship`). The goal is speed to a demoable prototype, spending nothing on external services until an idea graduates.
 
 When you spin up a new idea, run **`/prototype`** first — it renames the app and builds the walking skeleton.
 
@@ -36,8 +36,8 @@ proto-stack/
 
 | Component | Version |
 |---|---|
-| Node | 24.14.1+ (`.nvmrc`) |
-| Wasp | 0.25.0 (`npm i -g @wasp.sh/[email protected]`) |
+| Node | 24.22.3+ (`.nvmrc`; Wasp 0.26.1 minimum is 24.22.1) |
+| Wasp | 0.26.1 (`npm i -g @wasp.sh/wasp-cli@0.26.1`) |
 | Package manager | npm |
 
 ## Wasp docs
@@ -131,8 +131,8 @@ Bias is **no comment**. AI bloats code with narration; this repo doesn't ship it
 - **`wasp compile`** validates the spec and regenerates the SDK. It is the config check.
 - Do **not** run `npx tsc -b` / `tsc` on the root `tsconfig.json` — the spec project pulls `src/` in without DOM libs and reports errors that aren't real. To check `src/` alone: **`npx tsc -p tsconfig.src.json`**.
 - **`npm run check`** = brand-lint + security-lint + seo-lint + contrast + palette-mirror sync. Run it before considering any UI or operation change done. The same gate runs in CI ([`.github/workflows/check.yml`](.github/workflows/check.yml)) on every push — it needs no `npm install` because the lint scripts are dependency-free.
-- `wasp build` does **not** build the client bundle — `npx vite build` does. Both are needed to reproduce a ship.
-- Tests: default is **zero** — a test must earn its place (money/permission/gnarly-pure logic). `npm run test` (vitest) from `app/`; it's deliberately not in `npm run check`. See [`docs/testing.md`](docs/testing.md).
+- `wasp build` does **not** build the client bundle — `npx vite build` does. Both are needed to reproduce a ship. Since Wasp 0.26 the client build refuses to run without `REACT_APP_API_URL` (e.g. `REACT_APP_API_URL=https://example.invalid npx vite build` for a local check); deploys set it from the server URL.
+- Tests: default is **zero** — a test must earn its place (money/permission/gnarly-pure logic). `npm run test` (vitest via `wasp test client run`, which supplies the `REACT_APP_API_URL` Wasp 0.26 requires) from `app/`; it's deliberately not in `npm run check`. See [`docs/testing.md`](docs/testing.md).
 
 ## Key commands
 
@@ -155,6 +155,8 @@ raw `wasp start` in a shell — `wasp start` hangs when launched non-interactive
 - **`app/public/Staticfile` is required** — do not delete. Railway/Railpack needs it (`root: .`, `index_fallback: true`) to serve SPA routes. See [`docs/deployment.md`](docs/deployment.md).
 - `<script>` tags in the `head` array must use `async`, not `defer` (React hydration).
 - `wasp build` refuses the `Dummy` email provider — that's the intended gate. Set a real provider before shipping (the `/ship` skill walks this).
+- **`app/Dockerfile` patches production Node.** Wasp appends it to the generated Dockerfile, which pins `node:24.22.1` as of Wasp 0.26.1. It copies in a newer Node binary; bump its tag with `.nvmrc` on Node security releases. Copy only the binary, not npm (see the comment there).
+- **The server's liveness path is `/up`.** Since Wasp 0.26 the production server no longer answers `GET /`, so point any Railway health check at `/up`.
 
 ## Skills
 

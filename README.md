@@ -2,7 +2,7 @@
 
 A template for validating product ideas fast. Auth, database, a rebrandable
 design system, and guardrails are done once — so a new idea starts at the
-interesting part. Built on [Wasp](https://wasp.sh) 0.25.
+interesting part. Built on [Wasp](https://wasp.sh) 0.26.
 
 **A fresh prototype boots with zero external accounts** — email/password with a
 console mailer, and Postgres in Docker.
@@ -52,7 +52,7 @@ Run `claude` in the repo and use the skills:
 
 ## Prerequisites
 
-- Node 24.14.1+ · Wasp 0.25 (`npm i -g @wasp.sh/[email protected]`) · Docker
+- Node 24.22.3+ · Wasp 0.26 (`npm i -g @wasp.sh/wasp-cli@0.26.1`) · Docker
 
 ## Docs
 

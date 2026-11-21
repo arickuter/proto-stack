@@ -81,7 +81,7 @@ const fromField = {
 export default app({
   name: "ProtoStack",
   title: "ProtoStack",
-  wasp: { version: "^0.25.0" },
+  wasp: { version: "^0.26.0" },
   // Global <head>. Wasp renders each string as JSX, so attributes MUST be
   // camelCased (`httpEquiv`, not `http-equiv`) or they are silently dropped.
   // The description/og:* literals mirror APP_NAME/TAGLINE in src/shared/app.ts
