@@ -2,7 +2,7 @@
   "name": "proto-stack",
   "type": "module",
   "engines": {
-    "node": ">=24.14.1"
+    "node": ">=24.22.3"
   },
   "scripts": {
     "brand-lint": "node scripts/brand-lint.mjs",
@@ -12,28 +12,28 @@
     "brand:mirror": "node scripts/brand-tools.mjs mirror",
     "mirror:check": "node scripts/brand-tools.mjs mirror --check",
     "check": "node scripts/brand-lint.mjs && node scripts/security-lint.mjs && node scripts/seo-lint.mjs && node scripts/brand-tools.mjs contrast && node scripts/brand-tools.mjs mirror --check",
-    "test": "vitest run"
+    "test": "wasp test client run"
   },
   "workspaces": [
     ".wasp/out/*",
     ".wasp/out/sdk/wasp"
   ],
   "dependencies": {
-    "@fontsource/ibm-plex-mono": "^5.0.0",
+    "@fontsource/ibm-plex-mono": "^5.3.0",
     "@fontsource/ibm-plex-sans": "^5.3.0",
-    "@fontsource/space-grotesk": "^5.0.0",
+    "@fontsource/space-grotesk": "^5.3.0",
     "clsx": "^2.1.1",
-    "lucide-react": "^1.28.0",
+    "lucide-react": "^1.73.0",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "react-markdown": "^10.1.0",
     "react-router": "^8.0.1",
-    "tailwind-merge": "^3.3.1",
-    "tailwindcss": "^4.1.18",
-    "zod": "^4.4.3"
+    "tailwind-merge": "^3.7.0",
+    "tailwindcss": "^4.3.5",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "^4.3.1",
+    "@tailwindcss/vite": "^4.3.5",
     "@types/node": "^24.0.0",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
